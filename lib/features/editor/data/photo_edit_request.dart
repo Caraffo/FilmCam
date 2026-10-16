@@ -21,6 +21,8 @@ class PhotoEditRequest {
   /// Clave del original guardado en privado, si [source] es ese original.
   final String? originalKey;
 
+  bool get hasOriginal => originalKey != null;
+
   /// Look con el que se reveló la foto (o uno neutro si no hay registro).
   final FilmPreset look;
   final DateTime? dateStamp;

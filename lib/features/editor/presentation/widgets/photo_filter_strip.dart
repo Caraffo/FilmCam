@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
+import '../../../film/data/builtin_presets.dart';
 import '../../../film/data/film_preset.dart';
 import '../../../film/presentation/film_filter.dart';
 import '../../../film/presentation/film_providers.dart';
@@ -19,11 +20,16 @@ class PhotoFilterStrip extends ConsumerWidget {
     required this.source,
     required this.selectedId,
     required this.onSelected,
+    this.originalLabel,
   });
 
   final Uint8List source;
   final String selectedId;
   final ValueChanged<FilmPreset> onSelected;
+
+  /// Nombre a mostrar en lugar de "Original" (por ejemplo, cuando la foto
+  /// no tiene original guardado y ese tile la deja como está).
+  final String? originalLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,7 +43,9 @@ class PhotoFilterStrip extends ConsumerWidget {
       children: [
         for (final preset in presets)
           PresetTileFrame(
-            label: preset.name,
+            label: preset.id == kOriginalPresetId
+                ? originalLabel ?? preset.name
+                : preset.name,
             selected: preset.id == selectedId,
             onTap: () => onSelected(preset),
             child: FilmFilter(

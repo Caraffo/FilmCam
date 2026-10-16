@@ -51,10 +51,11 @@ class PhotoLibrary {
     return bytes;
   }
 
-  /// Borra la foto. En Android el sistema pide confirmación: devuelve false
-  /// si el usuario no la borró.
-  Future<bool> delete(AssetEntity asset) async {
-    final deleted = await PhotoManager.editor.deleteWithIds([asset.id]);
-    return deleted.contains(asset.id);
+  /// Borra las fotos. En Android el sistema pide una confirmación para
+  /// todas juntas: devuelve los ids que efectivamente se borraron.
+  Future<Set<String>> deleteAll(List<AssetEntity> assets) async {
+    if (assets.isEmpty) return {};
+    final ids = [for (final asset in assets) asset.id];
+    return (await PhotoManager.editor.deleteWithIds(ids)).toSet();
   }
 }

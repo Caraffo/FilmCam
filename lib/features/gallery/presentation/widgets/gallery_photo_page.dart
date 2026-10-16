@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/fade_in_memory_image.dart';
+import '../../../../core/widgets/motion_switcher.dart';
 import '../../../editor/data/photo_edit_request.dart';
 import '../../../editor/presentation/screens/photo_editor_screen.dart';
 import '../../../film/data/builtin_presets.dart';
@@ -13,6 +14,7 @@ import '../../data/gallery_photo.dart';
 import '../../data/photo_record.dart';
 import '../gallery_providers.dart';
 import 'before_after_view.dart';
+import 'delete_photos.dart';
 
 /// Una foto de la galería, con el comparador si la app guardó su original,
 /// y las acciones de editar y guardar el original.
@@ -98,6 +100,8 @@ class GalleryPhotoPage extends ConsumerWidget {
                 : FadeInMemoryImage(bytes, cacheWidth: decodeWidth),
           ),
           const SizedBox(height: Spacing.m),
+          _FilterLabel(record: record),
+          const SizedBox(height: Spacing.s),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -117,18 +121,79 @@ class GalleryPhotoPage extends ConsumerWidget {
                         ? CupertinoIcons.checkmark_alt
                         : CupertinoIcons.arrow_down_to_line,
                   ),
-                  label: Text(
-                    record.originalExported
-                        ? 'Original guardado'
-                        : 'Guardar original',
+                  label: MotionSwitcher(
+                    child: Text(
+                      record.originalExported
+                          ? 'Original guardado'
+                          : 'Guardar original',
+                      key: ValueKey(record.originalExported),
+                    ),
                   ),
                 ),
               ],
+              const SizedBox(width: Spacing.m),
+              IconButton(
+                tooltip: 'Borrar',
+                onPressed: () => confirmAndDeletePhotos(context, ref, [photo]),
+                icon: const Icon(CupertinoIcons.trash),
+              ),
             ],
           ),
           const SizedBox(height: Spacing.l),
         ],
       ),
+    );
+  }
+}
+
+/// Con qué filtro se reveló la foto, si la app lo registró.
+class _FilterLabel extends StatelessWidget {
+  const _FilterLabel({required this.record});
+
+  final PhotoRecord? record;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final record = this.record;
+    // Los filtros de fábrica se muestran con su nombre actual, aunque la
+    // foto se haya sacado cuando se llamaban distinto.
+    final name = record == null
+        ? null
+        : kBuiltInPresets
+                  .where((p) => p.id == record.look.id)
+                  .firstOrNull
+                  ?.name ??
+              record.look.name;
+    return MotionSwitcher(
+      child: record == null
+          ? Text(
+              'Sin datos del filtro',
+              key: const ValueKey('unknown'),
+              style: textTheme.labelMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            )
+          : Text.rich(
+              key: ValueKey(name),
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'FILTRO  ',
+                    style: TextStyle(color: scheme.onSurfaceVariant),
+                  ),
+                  TextSpan(
+                    text: name!.toUpperCase(),
+                    style: TextStyle(color: scheme.primary),
+                  ),
+                ],
+              ),
+              style: textTheme.labelMedium?.copyWith(
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
     );
   }
 }

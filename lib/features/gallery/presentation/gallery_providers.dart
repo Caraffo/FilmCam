@@ -124,13 +124,28 @@ class GalleryPhotos extends _$GalleryPhotos {
       look: look,
       dateStamp: dateStamp,
     );
-    var replaced = false;
-    if (replacing != null) {
-      replaced = await ref.read(photoLibraryProvider).delete(replacing.asset);
-      final oldKey = replacing.key;
-      if (replaced && oldKey != null) await store.deleteRecord(oldKey);
+    if (replacing == null) {
+      ref.invalidateSelf();
+      return true;
     }
+    return await deletePhotos([replacing]) == 1;
+  }
+
+  /// Borra fotos del álbum junto con sus registros y los originales que
+  /// queden sin usar. Devuelve cuántas se borraron (el usuario puede
+  /// rechazar la confirmación del sistema).
+  Future<int> deletePhotos(List<GalleryPhoto> photos) async {
+    final deletedIds = await ref.read(photoLibraryProvider).deleteAll([
+      for (final photo in photos) photo.asset,
+    ]);
+    final store = ref.read(photoRecordStoreProvider);
+    await store.deleteRecords([
+      for (final photo in photos)
+        if (deletedIds.contains(photo.asset.id) && photo.key != null)
+          photo.key!,
+    ]);
+    await store.pruneOriginals();
     ref.invalidateSelf();
-    return replacing == null || replaced;
+    return deletedIds.length;
   }
 }

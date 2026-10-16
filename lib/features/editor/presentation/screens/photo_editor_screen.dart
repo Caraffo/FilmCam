@@ -120,6 +120,7 @@ class _PhotoEditorScreenState extends ConsumerState<PhotoEditorScreen> {
                   ),
                 ),
               ),
+              if (!widget.request.hasOriginal) const _NoOriginalNotice(),
               const SizedBox(height: Spacing.s),
               EditorTabs(
                 selected: _tab,
@@ -137,6 +138,9 @@ class _PhotoEditorScreenState extends ConsumerState<PhotoEditorScreen> {
                       key: const ValueKey(EditorTab.filters),
                       source: widget.request.source,
                       selectedId: _look.id,
+                      originalLabel: widget.request.hasOriginal
+                          ? null
+                          : 'Sin cambios',
                       onSelected: (preset) => setState(() => _look = preset),
                     ),
                     EditorTab.adjust => PresetParamsList(
@@ -175,6 +179,28 @@ class _PhotoEditorScreenState extends ConsumerState<PhotoEditorScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Aviso para fotos sin original guardado: el filtro se aplica sobre la
+/// versión que ya tiene look y no se puede volver a la foto sin filtro.
+class _NoOriginalNotice extends StatelessWidget {
+  const _NoOriginalNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Spacing.m, Spacing.s, Spacing.m, 0),
+      child: Text(
+        'Esta foto es de antes de que FilmCam guardara los originales: '
+        'se edita sobre la versión con filtro y no se puede quitar.',
+        textAlign: TextAlign.center,
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
       ),
     );
   }

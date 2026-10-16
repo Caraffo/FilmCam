@@ -13,6 +13,8 @@ abstract class CapturedPhoto with _$CapturedPhoto {
   const CapturedPhoto._();
 
   const factory CapturedPhoto({
+    /// Identifica la foto dentro de la sesión.
+    required int id,
     required Uint8List original,
     required CaptureAspect aspect,
     Uint8List? filtered,

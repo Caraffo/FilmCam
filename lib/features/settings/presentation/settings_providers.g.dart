@@ -57,41 +57,88 @@ final class SettingsRepositoryProvider
 String _$settingsRepositoryHash() =>
     r'eea72d781f43f01df10d1b5f764e81a9894afdfe';
 
-/// Si suena el obturador al sacar una foto. Activado por defecto.
+/// Valor de una preferencia; se guarda al cambiarla.
 
-@ProviderFor(ShutterSoundEnabled)
-final shutterSoundEnabledProvider = ShutterSoundEnabledProvider._();
+@ProviderFor(Setting)
+final settingProvider = SettingFamily._();
 
-/// Si suena el obturador al sacar una foto. Activado por defecto.
-final class ShutterSoundEnabledProvider
-    extends $AsyncNotifierProvider<ShutterSoundEnabled, bool> {
-  /// Si suena el obturador al sacar una foto. Activado por defecto.
-  ShutterSoundEnabledProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'shutterSoundEnabledProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
+/// Valor de una preferencia; se guarda al cambiarla.
+final class SettingProvider extends $AsyncNotifierProvider<Setting, bool> {
+  /// Valor de una preferencia; se guarda al cambiarla.
+  SettingProvider._({
+    required SettingFamily super.from,
+    required AppSetting super.argument,
+  }) : super(
+         retry: null,
+         name: r'settingProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
   @override
-  String debugGetCreateSourceHash() => _$shutterSoundEnabledHash();
+  String debugGetCreateSourceHash() => _$settingHash();
+
+  @override
+  String toString() {
+    return r'settingProvider'
+        ''
+        '($argument)';
+  }
 
   @$internal
   @override
-  ShutterSoundEnabled create() => ShutterSoundEnabled();
+  Setting create() => Setting();
+
+  @override
+  bool operator ==(Object other) {
+    return other is SettingProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
 }
 
-String _$shutterSoundEnabledHash() =>
-    r'f4e7cd5777fbd24fc8e381bd9abd9a33c32711a2';
+String _$settingHash() => r'96bfb62f15b27b949b22a04e8896c4c7f16ff8c9';
 
-/// Si suena el obturador al sacar una foto. Activado por defecto.
+/// Valor de una preferencia; se guarda al cambiarla.
 
-abstract class _$ShutterSoundEnabled extends $AsyncNotifier<bool> {
-  FutureOr<bool> build();
+final class SettingFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          Setting,
+          AsyncValue<bool>,
+          bool,
+          FutureOr<bool>,
+          AppSetting
+        > {
+  SettingFamily._()
+    : super(
+        retry: null,
+        name: r'settingProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  /// Valor de una preferencia; se guarda al cambiarla.
+
+  SettingProvider call(AppSetting setting) =>
+      SettingProvider._(argument: setting, from: this);
+
+  @override
+  String toString() => r'settingProvider';
+}
+
+/// Valor de una preferencia; se guarda al cambiarla.
+
+abstract class _$Setting extends $AsyncNotifier<bool> {
+  late final _$args = ref.$arg as AppSetting;
+  AppSetting get setting => _$args;
+
+  FutureOr<bool> build(AppSetting setting);
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
@@ -104,6 +151,6 @@ abstract class _$ShutterSoundEnabled extends $AsyncNotifier<bool> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, build);
+    return element.handleCreate(ref, () => build(_$args));
   }
 }

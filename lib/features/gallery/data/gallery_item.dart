@@ -19,17 +19,17 @@ class AlbumPhotoItem extends GalleryItem {
   final GalleryPhoto photo;
 }
 
-/// Arma la lista de la galería: la foto recién sacada va primera mientras
-/// no aparezca en el álbum.
+/// Arma la lista de la galería: las fotos recién sacadas que todavía no
+/// aparecen en el álbum van primero.
 List<GalleryItem> buildGalleryItems(
-  CapturedPhoto? capture,
+  List<CapturedPhoto> captures,
   List<GalleryPhoto> photos,
 ) {
-  final key = capture?.galleryKey;
-  final pending =
-      capture != null && (key == null || !photos.any((p) => p.key == key));
+  final albumKeys = {for (final photo in photos) photo.key};
   return [
-    if (pending) PendingCaptureItem(capture),
+    for (final capture in captures)
+      if (capture.galleryKey == null || !albumKeys.contains(capture.galleryKey))
+        PendingCaptureItem(capture),
     for (final photo in photos) AlbumPhotoItem(photo),
   ];
 }

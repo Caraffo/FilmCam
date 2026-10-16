@@ -96,7 +96,9 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
           final item = items[index];
           return GalleryGridTile(
             key: switch (item) {
-              PendingCaptureItem() => const ValueKey('pending'),
+              PendingCaptureItem(:final capture) => ValueKey(
+                'pending-${capture.id}',
+              ),
               AlbumPhotoItem(:final photo) => ValueKey(photo.asset.id),
             },
             item: item,

@@ -5,8 +5,6 @@ import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/spacing.dart';
 import '../camera_session.dart';
 
-/// Zooms ofrecidos como "lentes"; se muestran solo los que soporta la cámara.
-const _zoomStops = [0.6, 1.0, 2.0, 3.0];
 const double _pillSize = 36;
 const double _selectedPillSize = 42;
 const double _backgroundAlpha = 0.45;
@@ -20,9 +18,7 @@ class ZoomSelector extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final camera = ref.watch(cameraSessionProvider).value;
     if (camera == null) return const SizedBox.shrink();
-    final stops = _zoomStops
-        .where((z) => z >= camera.minZoom && z <= camera.maxZoom)
-        .toList();
+    final stops = camera.zoomStops;
     if (stops.length < 2) return const SizedBox.shrink();
     final scheme = Theme.of(context).colorScheme;
 
@@ -39,9 +35,10 @@ class ZoomSelector extends ConsumerWidget {
             for (final zoom in stops)
               _ZoomPill(
                 zoom: zoom,
-                selected: camera.zoom == zoom,
-                onTap: () =>
-                    ref.read(cameraSessionProvider.notifier).setZoom(zoom),
+                selected: camera.selectedStop == zoom,
+                onTap: () => ref
+                    .read(cameraSessionProvider.notifier)
+                    .selectZoomStop(zoom),
               ),
           ],
         ),

@@ -22,7 +22,7 @@ class CameraBottomBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final photo = ref.watch(captureProvider);
+    final photo = ref.watch(captureProvider).firstOrNull;
     final cameraReady = ref.watch(cameraSessionProvider).hasValue;
 
     return Padding(

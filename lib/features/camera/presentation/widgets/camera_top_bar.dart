@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/round_icon_button.dart';
-import '../../../settings/presentation/settings_providers.dart';
+import '../../../settings/presentation/settings_sheet.dart';
 import '../camera_session.dart';
 import '../capture_providers.dart';
 import 'aspect_selector.dart';
@@ -17,7 +17,6 @@ class CameraTopBar extends ConsumerWidget {
     final camera = ref.watch(cameraSessionProvider).value;
     final session = ref.read(cameraSessionProvider.notifier);
     final dateStamp = ref.watch(dateStampEnabledProvider);
-    final sound = ref.watch(shutterSoundEnabledProvider).value ?? true;
     final flash = camera?.flashMode ?? FlashMode.off;
 
     return Padding(
@@ -42,12 +41,9 @@ class CameraTopBar extends ConsumerWidget {
           ),
           const SizedBox(width: Spacing.s),
           RoundIconButton(
-            tooltip: 'Sonido del obturador',
-            icon: sound
-                ? CupertinoIcons.speaker_2_fill
-                : CupertinoIcons.speaker_slash_fill,
-            active: sound,
-            onPressed: ref.read(shutterSoundEnabledProvider.notifier).toggle,
+            tooltip: 'Ajustes',
+            icon: CupertinoIcons.gear,
+            onPressed: () => showSettingsSheet(context),
           ),
           const Spacer(),
           AspectSelector(
@@ -58,7 +54,7 @@ class CameraTopBar extends ConsumerWidget {
           RoundIconButton(
             tooltip: 'Cambiar cámara',
             icon: CupertinoIcons.arrow_2_circlepath,
-            onPressed: (camera?.cameras.length ?? 0) > 1
+            onPressed: camera?.lenses.front != null
                 ? session.switchCamera
                 : null,
           ),

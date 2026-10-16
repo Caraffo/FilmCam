@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../gallery/presentation/screens/photo_viewer_screen.dart';
 import '../../../film/presentation/film_providers.dart';
+import '../../../settings/data/app_setting.dart';
+import '../../../settings/presentation/settings_providers.dart';
 import '../camera_layout.dart';
 import '../camera_session.dart';
 import '../capture_providers.dart';
@@ -37,6 +39,10 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     ref.read(shutterSoundPlayerProvider).preload();
+    // Se cargan ya para que el primer disparo use lo que eligió el usuario.
+    for (final setting in AppSetting.values) {
+      ref.read(settingProvider(setting));
+    }
     preloadFilmAssets(ref).catchError(
       (Object error) =>
           debugPrint('No se pudieron precargar los filtros: $error'),
@@ -83,7 +89,10 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
       );
       return;
     }
-    if (!mounted) return;
+    final openPhoto = ref
+        .read(settingProvider(AppSetting.openPhotoAfterCapture).notifier)
+        .current;
+    if (!openPhoto || !mounted) return;
     await _curtain.forward();
     if (mounted) await Navigator.of(context).push(PhotoViewerScreen.route());
   }

@@ -168,17 +168,27 @@ abstract class _$CaptureAspectSetting extends $Notifier<CaptureAspect> {
   }
 }
 
-/// Última foto sacada. [takePhoto] vuelve apenas está el original; el
-/// recorte, el revelado y el guardado siguen en segundo plano.
+/// Fotos sacadas en esta sesión que todavía hacen falta, de la más nueva a
+/// la más vieja: la última (para la miniatura) y las que se están revelando
+/// o fallaron. [takePhoto] vuelve apenas está el original; el revelado sigue
+/// en segundo plano, de a una foto por vez para no agotar la memoria al
+/// sacar varias seguidas.
 
 @ProviderFor(Capture)
 final captureProvider = CaptureProvider._();
 
-/// Última foto sacada. [takePhoto] vuelve apenas está el original; el
-/// recorte, el revelado y el guardado siguen en segundo plano.
-final class CaptureProvider extends $NotifierProvider<Capture, CapturedPhoto?> {
-  /// Última foto sacada. [takePhoto] vuelve apenas está el original; el
-  /// recorte, el revelado y el guardado siguen en segundo plano.
+/// Fotos sacadas en esta sesión que todavía hacen falta, de la más nueva a
+/// la más vieja: la última (para la miniatura) y las que se están revelando
+/// o fallaron. [takePhoto] vuelve apenas está el original; el revelado sigue
+/// en segundo plano, de a una foto por vez para no agotar la memoria al
+/// sacar varias seguidas.
+final class CaptureProvider
+    extends $NotifierProvider<Capture, List<CapturedPhoto>> {
+  /// Fotos sacadas en esta sesión que todavía hacen falta, de la más nueva a
+  /// la más vieja: la última (para la miniatura) y las que se están revelando
+  /// o fallaron. [takePhoto] vuelve apenas está el original; el revelado sigue
+  /// en segundo plano, de a una foto por vez para no agotar la memoria al
+  /// sacar varias seguidas.
   CaptureProvider._()
     : super(
         from: null,
@@ -198,30 +208,33 @@ final class CaptureProvider extends $NotifierProvider<Capture, CapturedPhoto?> {
   Capture create() => Capture();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CapturedPhoto? value) {
+  Override overrideWithValue(List<CapturedPhoto> value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<CapturedPhoto?>(value),
+      providerOverride: $SyncValueProvider<List<CapturedPhoto>>(value),
     );
   }
 }
 
-String _$captureHash() => r'ca40e44dff5f0fd2d4ed7a882ed2b3fc1a25f0c2';
+String _$captureHash() => r'947f51145c51c083e374ecd861814e8d5f4369a4';
 
-/// Última foto sacada. [takePhoto] vuelve apenas está el original; el
-/// recorte, el revelado y el guardado siguen en segundo plano.
+/// Fotos sacadas en esta sesión que todavía hacen falta, de la más nueva a
+/// la más vieja: la última (para la miniatura) y las que se están revelando
+/// o fallaron. [takePhoto] vuelve apenas está el original; el revelado sigue
+/// en segundo plano, de a una foto por vez para no agotar la memoria al
+/// sacar varias seguidas.
 
-abstract class _$Capture extends $Notifier<CapturedPhoto?> {
-  CapturedPhoto? build();
+abstract class _$Capture extends $Notifier<List<CapturedPhoto>> {
+  List<CapturedPhoto> build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<CapturedPhoto?, CapturedPhoto?>;
+    final ref = this.ref as $Ref<List<CapturedPhoto>, List<CapturedPhoto>>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<CapturedPhoto?, CapturedPhoto?>,
-              CapturedPhoto?,
+              AnyNotifier<List<CapturedPhoto>, List<CapturedPhoto>>,
+              List<CapturedPhoto>,
               Object?,
               Object?
             >;

@@ -64,6 +64,7 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
         onPageChanged: (page) => setState(() => _page = page),
         itemBuilder: (context, index) => switch (items[index]) {
           PendingCaptureItem(:final capture) => PendingCapturePage(
+            key: ValueKey('pending-${capture.id}'),
             photo: capture,
           ),
           AlbumPhotoItem(:final photo) => GalleryPhotoPage(

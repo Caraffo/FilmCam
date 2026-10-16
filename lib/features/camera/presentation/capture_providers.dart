@@ -1,10 +1,9 @@
-import 'dart:async';
-
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../film/data/film_preset.dart';
 import '../../film/presentation/film_providers.dart';
 import '../../gallery/presentation/gallery_providers.dart';
+import '../../settings/data/app_setting.dart';
 import '../../settings/presentation/settings_providers.dart';
 import '../data/capture_aspect.dart';
 import '../data/captured_photo.dart';
@@ -38,14 +37,19 @@ class CaptureAspectSetting extends _$CaptureAspectSetting {
   void select(CaptureAspect aspect) => state = aspect;
 }
 
-/// Última foto sacada. [takePhoto] vuelve apenas está el original; el
-/// recorte, el revelado y el guardado siguen en segundo plano.
+/// Fotos sacadas en esta sesión que todavía hacen falta, de la más nueva a
+/// la más vieja: la última (para la miniatura) y las que se están revelando
+/// o fallaron. [takePhoto] vuelve apenas está el original; el revelado sigue
+/// en segundo plano, de a una foto por vez para no agotar la memoria al
+/// sacar varias seguidas.
 @Riverpod(keepAlive: true)
 class Capture extends _$Capture {
   bool _shooting = false;
+  int _nextId = 0;
+  Future<void> _developQueue = Future.value();
 
   @override
-  CapturedPhoto? build() => null;
+  List<CapturedPhoto> build() => const [];
 
   /// Dispara la cámara. Los errores al sacar la foto se propagan; los del
   /// revelado quedan en [CapturedPhoto.processingError].
@@ -53,7 +57,7 @@ class Capture extends _$Capture {
     if (_shooting) return;
     _shooting = true;
     try {
-      if (ref.read(shutterSoundEnabledProvider).value ?? true) {
+      if (ref.read(settingProvider(AppSetting.shutterSound).notifier).current) {
         // El sonido no debe frenar ni hacer fallar el disparo.
         ref.read(shutterSoundPlayerProvider).play().ignore();
       }
@@ -63,11 +67,14 @@ class Capture extends _$Capture {
           : null;
       final file = await ref.read(cameraSessionProvider.notifier).takePicture();
       final photo = CapturedPhoto(
+        id: _nextId++,
         original: await file.readAsBytes(),
         aspect: ref.read(captureAspectSettingProvider),
       );
-      state = photo;
-      unawaited(_develop(photo, look, dateStamp));
+      state = [photo, ...state];
+      _developQueue = _developQueue.then(
+        (_) => _develop(photo, look, dateStamp),
+      );
     } finally {
       _shooting = false;
     }
@@ -92,24 +99,27 @@ class Capture extends _$Capture {
         look: look,
         dateStamp: dateStamp,
       );
-      _updateIfCurrent(
-        photo,
+      _update(
+        photo.id,
         (p) => p.copyWith(
           filtered: developed.jpeg,
           galleryKey: developed.record.key,
         ),
       );
+      // Ya está en el álbum: solo se conserva si es la última (miniatura).
+      if (state.isNotEmpty && state.first.id != photo.id) {
+        state = [
+          for (final p in state)
+            if (p.id != photo.id) p,
+        ];
+      }
       ref.invalidate(galleryPhotosProvider);
     } catch (error) {
-      _updateIfCurrent(photo, (p) => p.copyWith(processingError: error));
+      _update(photo.id, (p) => p.copyWith(processingError: error));
     }
   }
 
-  /// Aplica el cambio solo si [photo] sigue siendo la última foto.
-  void _updateIfCurrent(
-    CapturedPhoto photo,
-    CapturedPhoto Function(CapturedPhoto) update,
-  ) {
-    if (identical(state?.original, photo.original)) state = update(state!);
+  void _update(int id, CapturedPhoto Function(CapturedPhoto) update) {
+    state = [for (final p in state) p.id == id ? update(p) : p];
   }
 }

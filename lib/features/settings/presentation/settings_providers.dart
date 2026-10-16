@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/app_setting.dart';
 import '../data/settings_repository.dart';
 
 part 'settings_providers.g.dart';
@@ -9,16 +10,18 @@ part 'settings_providers.g.dart';
 SettingsRepository settingsRepository(Ref ref) =>
     SettingsRepository(SharedPreferencesAsync());
 
-/// Si suena el obturador al sacar una foto. Activado por defecto.
+/// Valor de una preferencia; se guarda al cambiarla.
 @Riverpod(keepAlive: true)
-class ShutterSoundEnabled extends _$ShutterSoundEnabled {
+class Setting extends _$Setting {
   @override
-  Future<bool> build() =>
-      ref.read(settingsRepositoryProvider).loadShutterSoundEnabled();
+  Future<bool> build(AppSetting setting) =>
+      ref.read(settingsRepositoryProvider).load(setting);
 
-  Future<void> toggle() async {
-    final enabled = !(state.value ?? true);
-    state = AsyncData(enabled);
-    await ref.read(settingsRepositoryProvider).saveShutterSoundEnabled(enabled);
+  /// Valor actual, o el por defecto mientras carga.
+  bool get current => state.value ?? setting.defaultValue;
+
+  Future<void> set(bool value) async {
+    state = AsyncData(value);
+    await ref.read(settingsRepositoryProvider).save(setting, value);
   }
 }

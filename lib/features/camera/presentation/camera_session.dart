@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../data/camera_lenses.dart';
 import '../data/camera_state.dart';
 
 part 'camera_session.g.dart';
@@ -17,13 +18,16 @@ class CameraSession extends _$CameraSession {
     if (cameras.isEmpty) {
       throw CameraException('no_camera', 'El dispositivo no tiene cámaras.');
     }
-    final backIndex = cameras.indexWhere(
-      (c) => c.lensDirection == CameraLensDirection.back,
-    );
-    return _open(cameras, backIndex == -1 ? 0 : backIndex);
+    final lenses = CameraLenses.from(cameras);
+    return _open(cameras, lenses, lenses.main);
   }
 
-  Future<CameraState> _open(List<CameraDescription> cameras, int index) async {
+  Future<CameraState> _open(
+    List<CameraDescription> cameras,
+    CameraLenses lenses,
+    int index, {
+    List<double> knownZoomStops = const [],
+  }) async {
     final controller = CameraController(
       cameras[index],
       ResolutionPreset.max,
@@ -35,22 +39,71 @@ class CameraSession extends _$CameraSession {
     return CameraState(
       controller: controller,
       cameras: cameras,
+      lenses: lenses,
       cameraIndex: index,
+      zoomStops: index == lenses.front
+          ? const []
+          : knownZoomStops.isNotEmpty
+          ? knownZoomStops
+          : await _zoomStops(controller, lenses),
       minExposureOffset: await controller.getMinExposureOffset(),
       maxExposureOffset: await controller.getMaxExposureOffset(),
-      minZoom: await controller.getMinZoomLevel(),
-      maxZoom: await controller.getMaxZoomLevel(),
     );
+  }
+
+  /// Los zooms que soporta [controller], más el gran angular. Se calculan
+  /// con la cámara principal y se reutilizan al cambiar de lente.
+  Future<List<double>> _zoomStops(
+    CameraController controller,
+    CameraLenses lenses,
+  ) async {
+    final maxZoom = await controller.getMaxZoomLevel();
+    return [
+      if (lenses.ultraWide != null) kUltraWideStop,
+      for (final stop in kMainZoomStops)
+        if (stop <= maxZoom) stop,
+    ];
   }
 
   CameraState get _current => state.requireValue;
 
-  Future<void> switchCamera() async {
+  Future<void> _reopen(int index) async {
     final current = _current;
-    final nextIndex = (current.cameraIndex + 1) % current.cameras.length;
+    if (current.cameraIndex == index) return;
     state = const AsyncLoading();
     await current.controller.dispose();
-    state = await AsyncValue.guard(() => _open(current.cameras, nextIndex));
+    state = await AsyncValue.guard(
+      () => _open(
+        current.cameras,
+        current.lenses,
+        index,
+        knownZoomStops: current.zoomStops,
+      ),
+    );
+  }
+
+  /// Alterna entre la cámara trasera principal y la frontal.
+  Future<void> switchCamera() async {
+    final current = _current;
+    final front = current.lenses.front;
+    await _reopen(
+      current.isFront || front == null ? current.lenses.main : front,
+    );
+  }
+
+  /// Elige una "lente" del selector: el gran angular cambia de cámara; el
+  /// resto es zoom sobre la principal.
+  Future<void> selectZoomStop(double stop) async {
+    final lenses = _current.lenses;
+    final ultraWide = lenses.ultraWide;
+    if (stop < 1 && ultraWide != null) {
+      await _reopen(ultraWide);
+      return;
+    }
+    await _reopen(lenses.main);
+    final current = _current;
+    await current.controller.setZoomLevel(stop);
+    state = AsyncData(current.copyWith(zoom: stop));
   }
 
   Future<void> cycleFlash() async {
@@ -66,12 +119,6 @@ class CameraSession extends _$CameraSession {
     final current = _current;
     final applied = await current.controller.setExposureOffset(offset);
     state = AsyncData(current.copyWith(exposureOffset: applied));
-  }
-
-  Future<void> setZoom(double zoom) async {
-    final current = _current;
-    await current.controller.setZoomLevel(zoom);
-    state = AsyncData(current.copyWith(zoom: zoom));
   }
 
   Future<XFile> takePicture() => _current.controller.takePicture();

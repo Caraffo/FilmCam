@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CapturedPhoto {
 
- Uint8List get original; CaptureAspect get aspect; Uint8List? get filtered;/// Clave de la foto en la galería, cuando ya se guardó.
+/// Identifica la foto dentro de la sesión.
+ int get id; Uint8List get original; CaptureAspect get aspect; Uint8List? get filtered;/// Clave de la foto en la galería, cuando ya se guardó.
  String? get galleryKey; Object? get processingError;
 /// Create a copy of CapturedPhoto
 /// with the given fields replaced by the non-null parameter values.
@@ -27,16 +28,16 @@ $CapturedPhotoCopyWith<CapturedPhoto> get copyWith => _$CapturedPhotoCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CapturedPhoto&&const DeepCollectionEquality().equals(other.original, original)&&(identical(other.aspect, aspect) || other.aspect == aspect)&&const DeepCollectionEquality().equals(other.filtered, filtered)&&(identical(other.galleryKey, galleryKey) || other.galleryKey == galleryKey)&&const DeepCollectionEquality().equals(other.processingError, processingError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CapturedPhoto&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other.original, original)&&(identical(other.aspect, aspect) || other.aspect == aspect)&&const DeepCollectionEquality().equals(other.filtered, filtered)&&(identical(other.galleryKey, galleryKey) || other.galleryKey == galleryKey)&&const DeepCollectionEquality().equals(other.processingError, processingError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(original),aspect,const DeepCollectionEquality().hash(filtered),galleryKey,const DeepCollectionEquality().hash(processingError));
+int get hashCode => Object.hash(runtimeType,id,const DeepCollectionEquality().hash(original),aspect,const DeepCollectionEquality().hash(filtered),galleryKey,const DeepCollectionEquality().hash(processingError));
 
 @override
 String toString() {
-  return 'CapturedPhoto(original: $original, aspect: $aspect, filtered: $filtered, galleryKey: $galleryKey, processingError: $processingError)';
+  return 'CapturedPhoto(id: $id, original: $original, aspect: $aspect, filtered: $filtered, galleryKey: $galleryKey, processingError: $processingError)';
 }
 
 
@@ -47,7 +48,7 @@ abstract mixin class $CapturedPhotoCopyWith<$Res>  {
   factory $CapturedPhotoCopyWith(CapturedPhoto value, $Res Function(CapturedPhoto) _then) = _$CapturedPhotoCopyWithImpl;
 @useResult
 $Res call({
- Uint8List original, CaptureAspect aspect, Uint8List? filtered, String? galleryKey, Object? processingError
+ int id, Uint8List original, CaptureAspect aspect, Uint8List? filtered, String? galleryKey, Object? processingError
 });
 
 
@@ -64,9 +65,10 @@ class _$CapturedPhotoCopyWithImpl<$Res>
 
 /// Create a copy of CapturedPhoto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? original = null,Object? aspect = null,Object? filtered = freezed,Object? galleryKey = freezed,Object? processingError = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? original = null,Object? aspect = null,Object? filtered = freezed,Object? galleryKey = freezed,Object? processingError = freezed,}) {
   return _then(CapturedPhoto(
-original: null == original ? _self.original : original // ignore: cast_nullable_to_non_nullable
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,original: null == original ? _self.original : original // ignore: cast_nullable_to_non_nullable
 as Uint8List,aspect: null == aspect ? _self.aspect : aspect // ignore: cast_nullable_to_non_nullable
 as CaptureAspect,filtered: freezed == filtered ? _self.filtered : filtered // ignore: cast_nullable_to_non_nullable
 as Uint8List?,galleryKey: freezed == galleryKey ? _self.galleryKey : galleryKey // ignore: cast_nullable_to_non_nullable
@@ -155,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Uint8List original,  CaptureAspect aspect,  Uint8List? filtered,  String? galleryKey,  Object? processingError)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  Uint8List original,  CaptureAspect aspect,  Uint8List? filtered,  String? galleryKey,  Object? processingError)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CapturedPhoto() when $default != null:
-return $default(_that.original,_that.aspect,_that.filtered,_that.galleryKey,_that.processingError);case _:
+return $default(_that.id,_that.original,_that.aspect,_that.filtered,_that.galleryKey,_that.processingError);case _:
   return orElse();
 
 }
@@ -176,10 +178,10 @@ return $default(_that.original,_that.aspect,_that.filtered,_that.galleryKey,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Uint8List original,  CaptureAspect aspect,  Uint8List? filtered,  String? galleryKey,  Object? processingError)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  Uint8List original,  CaptureAspect aspect,  Uint8List? filtered,  String? galleryKey,  Object? processingError)  $default,) {final _that = this;
 switch (_that) {
 case _CapturedPhoto():
-return $default(_that.original,_that.aspect,_that.filtered,_that.galleryKey,_that.processingError);case _:
+return $default(_that.id,_that.original,_that.aspect,_that.filtered,_that.galleryKey,_that.processingError);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +198,10 @@ return $default(_that.original,_that.aspect,_that.filtered,_that.galleryKey,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Uint8List original,  CaptureAspect aspect,  Uint8List? filtered,  String? galleryKey,  Object? processingError)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  Uint8List original,  CaptureAspect aspect,  Uint8List? filtered,  String? galleryKey,  Object? processingError)?  $default,) {final _that = this;
 switch (_that) {
 case _CapturedPhoto() when $default != null:
-return $default(_that.original,_that.aspect,_that.filtered,_that.galleryKey,_that.processingError);case _:
+return $default(_that.id,_that.original,_that.aspect,_that.filtered,_that.galleryKey,_that.processingError);case _:
   return null;
 
 }
@@ -211,9 +213,11 @@ return $default(_that.original,_that.aspect,_that.filtered,_that.galleryKey,_tha
 
 
 class _CapturedPhoto extends CapturedPhoto {
-  const _CapturedPhoto({required this.original, required this.aspect, this.filtered, this.galleryKey, this.processingError}): super._();
+  const _CapturedPhoto({required this.id, required this.original, required this.aspect, this.filtered, this.galleryKey, this.processingError}): super._();
   
 
+/// Identifica la foto dentro de la sesión.
+@override final  int id;
 @override final  Uint8List original;
 @override final  CaptureAspect aspect;
 @override final  Uint8List? filtered;
@@ -231,16 +235,16 @@ _$CapturedPhotoCopyWith<_CapturedPhoto> get copyWith => __$CapturedPhotoCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CapturedPhoto&&const DeepCollectionEquality().equals(other.original, original)&&(identical(other.aspect, aspect) || other.aspect == aspect)&&const DeepCollectionEquality().equals(other.filtered, filtered)&&(identical(other.galleryKey, galleryKey) || other.galleryKey == galleryKey)&&const DeepCollectionEquality().equals(other.processingError, processingError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CapturedPhoto&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other.original, original)&&(identical(other.aspect, aspect) || other.aspect == aspect)&&const DeepCollectionEquality().equals(other.filtered, filtered)&&(identical(other.galleryKey, galleryKey) || other.galleryKey == galleryKey)&&const DeepCollectionEquality().equals(other.processingError, processingError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(original),aspect,const DeepCollectionEquality().hash(filtered),galleryKey,const DeepCollectionEquality().hash(processingError));
+int get hashCode => Object.hash(runtimeType,id,const DeepCollectionEquality().hash(original),aspect,const DeepCollectionEquality().hash(filtered),galleryKey,const DeepCollectionEquality().hash(processingError));
 
 @override
 String toString() {
-  return 'CapturedPhoto(original: $original, aspect: $aspect, filtered: $filtered, galleryKey: $galleryKey, processingError: $processingError)';
+  return 'CapturedPhoto(id: $id, original: $original, aspect: $aspect, filtered: $filtered, galleryKey: $galleryKey, processingError: $processingError)';
 }
 
 
@@ -251,7 +255,7 @@ abstract mixin class _$CapturedPhotoCopyWith<$Res> implements $CapturedPhotoCopy
   factory _$CapturedPhotoCopyWith(_CapturedPhoto value, $Res Function(_CapturedPhoto) _then) = __$CapturedPhotoCopyWithImpl;
 @override @useResult
 $Res call({
- Uint8List original, CaptureAspect aspect, Uint8List? filtered, String? galleryKey, Object? processingError
+ int id, Uint8List original, CaptureAspect aspect, Uint8List? filtered, String? galleryKey, Object? processingError
 });
 
 
@@ -268,9 +272,10 @@ class __$CapturedPhotoCopyWithImpl<$Res>
 
 /// Create a copy of CapturedPhoto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? original = null,Object? aspect = null,Object? filtered = freezed,Object? galleryKey = freezed,Object? processingError = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? original = null,Object? aspect = null,Object? filtered = freezed,Object? galleryKey = freezed,Object? processingError = freezed,}) {
   return _then(_CapturedPhoto(
-original: null == original ? _self.original : original // ignore: cast_nullable_to_non_nullable
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,original: null == original ? _self.original : original // ignore: cast_nullable_to_non_nullable
 as Uint8List,aspect: null == aspect ? _self.aspect : aspect // ignore: cast_nullable_to_non_nullable
 as CaptureAspect,filtered: freezed == filtered ? _self.filtered : filtered // ignore: cast_nullable_to_non_nullable
 as Uint8List?,galleryKey: freezed == galleryKey ? _self.galleryKey : galleryKey // ignore: cast_nullable_to_non_nullable

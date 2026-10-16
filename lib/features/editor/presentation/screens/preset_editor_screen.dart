@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,12 +15,26 @@ import '../widgets/param_slider.dart';
 /// Proporción del preview dentro del editor (alto de pantalla).
 const _previewHeightFactor = 0.38;
 
-/// Edita un preset con preview en vivo. Los presets de fábrica se guardan
-/// como uno nuevo; los del usuario se sobrescriben.
+/// Edita un preset con preview en vivo. Los presets de fábrica, o los
+/// abiertos con [createNew], se guardan como uno nuevo; los del usuario se
+/// sobrescriben.
 class PresetEditorScreen extends ConsumerStatefulWidget {
-  const PresetEditorScreen({super.key, required this.initial});
+  const PresetEditorScreen({
+    super.key,
+    required this.initial,
+    this.createNew = false,
+  });
 
   final FilmPreset initial;
+  final bool createNew;
+
+  static Route<void> route(FilmPreset initial, {bool createNew = false}) =>
+      MaterialPageRoute(
+        builder: (_) =>
+            PresetEditorScreen(initial: initial, createNew: createNew),
+      );
+
+  bool get _savesAsNew => createNew || initial.isBuiltIn;
 
   @override
   ConsumerState<PresetEditorScreen> createState() => _PresetEditorScreenState();
@@ -28,7 +43,7 @@ class PresetEditorScreen extends ConsumerStatefulWidget {
 class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
   late FilmPreset _draft = widget.initial;
   late final _nameController = TextEditingController(
-    text: widget.initial.isBuiltIn
+    text: widget._savesAsNew
         ? '${widget.initial.name} (mío)'
         : widget.initial.name,
   );
@@ -42,7 +57,7 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
   Future<void> _save() async {
     final name = _nameController.text.trim();
     final preset = _draft.copyWith(
-      id: _draft.isBuiltIn
+      id: widget._savesAsNew
           ? 'user_${DateTime.now().millisecondsSinceEpoch}'
           : _draft.id,
       name: name.isEmpty ? widget.initial.name : name,
@@ -79,18 +94,18 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
     final controller = ref.watch(cameraSessionProvider).value?.controller;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar preset'),
+        title: Text(widget.createNew ? 'Nuevo filtro' : 'Editar filtro'),
         actions: [
-          if (!widget.initial.isBuiltIn)
+          if (!widget._savesAsNew)
             IconButton(
               tooltip: 'Borrar',
               onPressed: _delete,
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(CupertinoIcons.trash),
             ),
           IconButton(
             tooltip: 'Guardar',
             onPressed: _save,
-            icon: const Icon(Icons.check),
+            icon: const Icon(CupertinoIcons.checkmark_alt),
           ),
         ],
       ),

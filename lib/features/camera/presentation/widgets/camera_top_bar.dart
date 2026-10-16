@@ -1,13 +1,12 @@
 import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
+import '../../../../core/widgets/round_icon_button.dart';
+import '../../../settings/presentation/settings_providers.dart';
 import '../camera_session.dart';
 import '../capture_providers.dart';
-
-/// Zooms ofrecidos como "lentes"; se muestran solo los que soporta la cámara.
-const _zoomStops = [0.6, 1.0, 2.0, 3.0];
 
 class CameraTopBar extends ConsumerWidget {
   const CameraTopBar({super.key});
@@ -17,42 +16,45 @@ class CameraTopBar extends ConsumerWidget {
     final camera = ref.watch(cameraSessionProvider).value;
     final session = ref.read(cameraSessionProvider.notifier);
     final dateStamp = ref.watch(dateStampEnabledProvider);
-    final zoomStops = camera == null
-        ? const <double>[]
-        : _zoomStops
-              .where((z) => z >= camera.minZoom && z <= camera.maxZoom)
-              .toList();
+    final sound = ref.watch(shutterSoundEnabledProvider).value ?? true;
+    final flash = camera?.flashMode ?? FlashMode.off;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Spacing.s),
+      padding: const EdgeInsets.symmetric(
+        horizontal: Spacing.m,
+        vertical: Spacing.s,
+      ),
       child: Row(
         children: [
-          IconButton(
+          RoundIconButton(
             tooltip: 'Flash',
+            icon: _flashIcon(flash),
+            active: flash != FlashMode.off,
             onPressed: camera == null ? null : session.cycleFlash,
-            icon: Icon(_flashIcon(camera?.flashMode ?? FlashMode.off)),
           ),
-          IconButton(
+          const SizedBox(width: Spacing.s),
+          RoundIconButton(
             tooltip: 'Fecha en la foto',
-            isSelected: dateStamp,
+            icon: CupertinoIcons.calendar,
+            active: dateStamp,
             onPressed: ref.read(dateStampEnabledProvider.notifier).toggle,
-            icon: const Icon(Icons.event_busy),
-            selectedIcon: const Icon(Icons.event),
+          ),
+          const SizedBox(width: Spacing.s),
+          RoundIconButton(
+            tooltip: 'Sonido del obturador',
+            icon: sound
+                ? CupertinoIcons.speaker_2_fill
+                : CupertinoIcons.speaker_slash_fill,
+            active: sound,
+            onPressed: ref.read(shutterSoundEnabledProvider.notifier).toggle,
           ),
           const Spacer(),
-          for (final zoom in zoomStops)
-            _ZoomChip(
-              zoom: zoom,
-              selected: camera?.zoom == zoom,
-              onTap: () => session.setZoom(zoom),
-            ),
-          const Spacer(),
-          IconButton(
+          RoundIconButton(
             tooltip: 'Cambiar cámara',
+            icon: CupertinoIcons.arrow_2_circlepath,
             onPressed: (camera?.cameras.length ?? 0) > 1
                 ? session.switchCamera
                 : null,
-            icon: const Icon(Icons.cameraswitch_outlined),
           ),
         ],
       ),
@@ -60,36 +62,8 @@ class CameraTopBar extends ConsumerWidget {
   }
 
   static IconData _flashIcon(FlashMode mode) => switch (mode) {
-    FlashMode.auto => Icons.flash_auto,
-    FlashMode.always || FlashMode.torch => Icons.flash_on,
-    FlashMode.off => Icons.flash_off,
+    FlashMode.auto => CupertinoIcons.bolt_badge_a_fill,
+    FlashMode.always || FlashMode.torch => CupertinoIcons.bolt_fill,
+    FlashMode.off => CupertinoIcons.bolt_slash_fill,
   };
-}
-
-class _ZoomChip extends StatelessWidget {
-  const _ZoomChip({
-    required this.zoom,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final double zoom;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final label = zoom == zoom.roundToDouble()
-        ? '${zoom.toInt()}x'
-        : '${zoom.toStringAsFixed(1)}x';
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Spacing.xs),
-      child: ChoiceChip(
-        label: Text(label),
-        selected: selected,
-        showCheckmark: false,
-        onSelected: (_) => onTap(),
-      ),
-    );
-  }
 }

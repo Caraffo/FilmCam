@@ -97,6 +97,54 @@ final class GalleryRepositoryProvider
 
 String _$galleryRepositoryHash() => r'9bb907296177590a6bf78eef931f3a159fcf78dc';
 
+@ProviderFor(shutterSoundPlayer)
+final shutterSoundPlayerProvider = ShutterSoundPlayerProvider._();
+
+final class ShutterSoundPlayerProvider
+    extends
+        $FunctionalProvider<
+          ShutterSoundPlayer,
+          ShutterSoundPlayer,
+          ShutterSoundPlayer
+        >
+    with $Provider<ShutterSoundPlayer> {
+  ShutterSoundPlayerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'shutterSoundPlayerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$shutterSoundPlayerHash();
+
+  @$internal
+  @override
+  $ProviderElement<ShutterSoundPlayer> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ShutterSoundPlayer create(Ref ref) {
+    return shutterSoundPlayer(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ShutterSoundPlayer value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ShutterSoundPlayer>(value),
+    );
+  }
+}
+
+String _$shutterSoundPlayerHash() =>
+    r'725657d5c4b7e902656f7682d47a823515021508';
+
 /// Si se estampa la fecha en las fotos.
 
 @ProviderFor(DateStampEnabled)
@@ -155,14 +203,17 @@ abstract class _$DateStampEnabled extends $Notifier<bool> {
   }
 }
 
-/// Última foto sacada (ya procesada) y si hay una procesándose.
+/// Última foto sacada. [takePhoto] vuelve apenas está el original; el
+/// procesado y el guardado de la versión con filtro siguen en segundo plano.
 
 @ProviderFor(Capture)
 final captureProvider = CaptureProvider._();
 
-/// Última foto sacada (ya procesada) y si hay una procesándose.
-final class CaptureProvider extends $NotifierProvider<Capture, CaptureState> {
-  /// Última foto sacada (ya procesada) y si hay una procesándose.
+/// Última foto sacada. [takePhoto] vuelve apenas está el original; el
+/// procesado y el guardado de la versión con filtro siguen en segundo plano.
+final class CaptureProvider extends $NotifierProvider<Capture, CapturedPhoto?> {
+  /// Última foto sacada. [takePhoto] vuelve apenas está el original; el
+  /// procesado y el guardado de la versión con filtro siguen en segundo plano.
   CaptureProvider._()
     : super(
         from: null,
@@ -182,29 +233,30 @@ final class CaptureProvider extends $NotifierProvider<Capture, CaptureState> {
   Capture create() => Capture();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CaptureState value) {
+  Override overrideWithValue(CapturedPhoto? value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<CaptureState>(value),
+      providerOverride: $SyncValueProvider<CapturedPhoto?>(value),
     );
   }
 }
 
-String _$captureHash() => r'0d010e97977c71eda209bee26af6c28698bee360';
+String _$captureHash() => r'e313bc8f017143e5280da21e5c44744ba1a42152';
 
-/// Última foto sacada (ya procesada) y si hay una procesándose.
+/// Última foto sacada. [takePhoto] vuelve apenas está el original; el
+/// procesado y el guardado de la versión con filtro siguen en segundo plano.
 
-abstract class _$Capture extends $Notifier<CaptureState> {
-  CaptureState build();
+abstract class _$Capture extends $Notifier<CapturedPhoto?> {
+  CapturedPhoto? build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<CaptureState, CaptureState>;
+    final ref = this.ref as $Ref<CapturedPhoto?, CapturedPhoto?>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<CaptureState, CaptureState>,
-              CaptureState,
+              AnyNotifier<CapturedPhoto?, CapturedPhoto?>,
+              CapturedPhoto?,
               Object?,
               Object?
             >;

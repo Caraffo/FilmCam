@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
+import '../../../../core/widgets/motion_switcher.dart';
 import '../../../../core/widgets/round_icon_button.dart';
 import '../../../film/presentation/film_providers.dart';
 import 'camera_panel.dart';
@@ -29,12 +30,16 @@ class ControlStrip extends ConsumerWidget {
             onPressed: () => onToggle(CameraPanelMode.exposure),
           ),
           Expanded(
-            child: Text(
-              look.name.toUpperCase(),
-              textAlign: TextAlign.center,
-              style: textTheme.labelMedium?.copyWith(
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.w600,
+            child: MotionSwitcher(
+              offset: 0.6,
+              child: Text(
+                look.name.toUpperCase(),
+                key: ValueKey(look.name),
+                textAlign: TextAlign.center,
+                style: textTheme.labelMedium?.copyWith(
+                  letterSpacing: 1.5,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

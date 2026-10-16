@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/spacing.dart';
+import '../../../../core/widgets/motion_switcher.dart';
 import '../../../film/data/film_preset.dart';
 import '../../../film/presentation/film_filter.dart';
 import '../../../gallery/presentation/gallery_providers.dart';
@@ -110,7 +112,11 @@ class _PhotoEditorScreenState extends ConsumerState<PhotoEditorScreen> {
                   child: Center(
                     child: _showingOriginal
                         ? preview
-                        : FilmFilter(look: _look, child: preview),
+                        : FilmFilter(
+                            look: _look,
+                            animateChanges: true,
+                            child: preview,
+                          ),
                   ),
                 ),
               ),
@@ -119,42 +125,55 @@ class _PhotoEditorScreenState extends ConsumerState<PhotoEditorScreen> {
                 selected: _tab,
                 onChanged: (tab) => setState(() => _tab = tab),
               ),
-              SizedBox(
+              AnimatedContainer(
+                duration: Motion.medium,
+                curve: Motion.emphasized,
                 height: _tab == EditorTab.filters
                     ? _filtersPanelHeight
                     : _adjustPanelHeight,
-                child: switch (_tab) {
-                  EditorTab.filters => PhotoFilterStrip(
-                    source: widget.request.source,
-                    selectedId: _look.id,
-                    onSelected: (preset) => setState(() => _look = preset),
-                  ),
-                  EditorTab.adjust => PresetParamsList(
-                    look: _look,
-                    onChanged: (look) => setState(() => _look = look),
-                    header: [
-                      SwitchListTile(
-                        title: const Text('Fecha en la foto'),
-                        value: _dateStamp,
-                        onChanged: (v) => setState(() => _dateStamp = v),
-                      ),
-                    ],
-                  ),
-                },
+                child: MotionSwitcher(
+                  child: switch (_tab) {
+                    EditorTab.filters => PhotoFilterStrip(
+                      key: const ValueKey(EditorTab.filters),
+                      source: widget.request.source,
+                      selectedId: _look.id,
+                      onSelected: (preset) => setState(() => _look = preset),
+                    ),
+                    EditorTab.adjust => PresetParamsList(
+                      key: const ValueKey(EditorTab.adjust),
+                      look: _look,
+                      onChanged: (look) => setState(() => _look = look),
+                      header: [
+                        SwitchListTile(
+                          title: const Text('Fecha en la foto'),
+                          value: _dateStamp,
+                          onChanged: (v) => setState(() => _dateStamp = v),
+                        ),
+                      ],
+                    ),
+                  },
+                ),
               ),
             ],
           ),
-          if (_saving)
-            Positioned.fill(
-              child: ColoredBox(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surface.withValues(alpha: _barrierAlpha),
-                child: const Center(
-                  child: StatusPill(text: 'Revelando…', loading: true),
+          // El velo de "Revelando…" aparece y desaparece con un fundido.
+          Positioned.fill(
+            child: IgnorePointer(
+              ignoring: !_saving,
+              child: AnimatedOpacity(
+                opacity: _saving ? 1 : 0,
+                duration: Motion.medium,
+                child: ColoredBox(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surface.withValues(alpha: _barrierAlpha),
+                  child: const Center(
+                    child: StatusPill(text: 'Revelando…', loading: true),
+                  ),
                 ),
               ),
             ),
+          ),
         ],
       ),
     );

@@ -175,15 +175,18 @@ final class PresetRepositoryProvider
 
 String _$presetRepositoryHash() => r'53a2e1920a8be2c5e70cae30b9233294a1dc4fba';
 
-/// Presets de fábrica seguidos de los creados por el usuario.
+/// Presets visibles: los de fábrica que no se borraron, seguidos de los
+/// creados por el usuario.
 
 @ProviderFor(Presets)
 final presetsProvider = PresetsProvider._();
 
-/// Presets de fábrica seguidos de los creados por el usuario.
+/// Presets visibles: los de fábrica que no se borraron, seguidos de los
+/// creados por el usuario.
 final class PresetsProvider
     extends $AsyncNotifierProvider<Presets, List<FilmPreset>> {
-  /// Presets de fábrica seguidos de los creados por el usuario.
+  /// Presets visibles: los de fábrica que no se borraron, seguidos de los
+  /// creados por el usuario.
   PresetsProvider._()
     : super(
         from: null,
@@ -203,9 +206,10 @@ final class PresetsProvider
   Presets create() => Presets();
 }
 
-String _$presetsHash() => r'7b6e2fb7218d97bd031d6a329818bea143168dec';
+String _$presetsHash() => r'7d0b144898c06d18ea88cc6f4ebd25ae75ef526e';
 
-/// Presets de fábrica seguidos de los creados por el usuario.
+/// Presets visibles: los de fábrica que no se borraron, seguidos de los
+/// creados por el usuario.
 
 abstract class _$Presets extends $AsyncNotifier<List<FilmPreset>> {
   FutureOr<List<FilmPreset>> build();
@@ -265,7 +269,7 @@ final class ActiveLookProvider
   }
 }
 
-String _$activeLookHash() => r'87ca89ffe0d04b84071613f00c499b8f78bcc559';
+String _$activeLookHash() => r'2845f72c406a4743172f2f3c3137d38461ad9f32';
 
 /// Look activo en la cámara: el preset elegido más los ajustes rápidos
 /// (por ejemplo, el balance de blancos) que se hagan encima.

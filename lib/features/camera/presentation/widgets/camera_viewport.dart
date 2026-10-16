@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../film/presentation/film_providers.dart';
 import '../camera_session.dart';
@@ -14,17 +15,29 @@ class CameraViewport extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(cameraSessionProvider);
-    return session.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => _CameraError(
-        message: error.toString(),
-        onRetry: () => ref.invalidate(cameraSessionProvider),
-      ),
-      data: (camera) => Center(
-        child: CroppedCameraPreview(
-          controller: camera.controller,
-          look: ref.watch(activeLookProvider),
-          aspectRatio: ref.watch(captureAspectSettingProvider).ratio,
+    final aspectRatio = ref.watch(captureAspectSettingProvider).ratio;
+    // El fundido cubre la apertura de la cámara y el cambio de lente.
+    return AnimatedSwitcher(
+      duration: Motion.medium,
+      child: session.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => _CameraError(
+          message: error.toString(),
+          onRetry: () => ref.invalidate(cameraSessionProvider),
+        ),
+        data: (camera) => Center(
+          key: ValueKey(camera.controller),
+          // El visor se estira o encoge al cambiar la relación de aspecto.
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(end: aspectRatio),
+            duration: Motion.medium,
+            curve: Motion.emphasized,
+            builder: (context, ratio, _) => CroppedCameraPreview(
+              controller: camera.controller,
+              look: ref.watch(activeLookProvider),
+              aspectRatio: ratio,
+            ),
+          ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/round_icon_button.dart';
 import '../../../editor/presentation/screens/preset_editor_screen.dart';
@@ -31,27 +32,35 @@ class CameraBottomBar extends ConsumerWidget {
         children: [
           SizedBox.square(
             dimension: CameraLayout.sideButtonSize,
-            child: photo == null
-                ? RoundIconButton(
-                    tooltip: 'Galería',
-                    size: CameraLayout.sideButtonSize,
-                    icon: CupertinoIcons.photo_on_rectangle,
-                    onPressed: () =>
-                        Navigator.of(context).push(GalleryScreen.route()),
-                  )
-                : GestureDetector(
-                    onTap: () =>
-                        Navigator.of(context).push(GalleryScreen.route()),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(Spacing.s),
-                      child: Image.memory(
-                        photo.filtered ?? photo.original,
-                        fit: BoxFit.cover,
-                        cacheWidth: _thumbnailDecodeWidth,
-                        gaplessPlayback: true,
+            // La miniatura nueva entra con un pequeño rebote.
+            child: AnimatedSwitcher(
+              duration: Motion.medium,
+              switchInCurve: Motion.spring,
+              transitionBuilder: (child, animation) =>
+                  ScaleTransition(scale: animation, child: child),
+              child: photo == null
+                  ? RoundIconButton(
+                      tooltip: 'Galería',
+                      size: CameraLayout.sideButtonSize,
+                      icon: CupertinoIcons.photo_on_rectangle,
+                      onPressed: () =>
+                          Navigator.of(context).push(GalleryScreen.route()),
+                    )
+                  : GestureDetector(
+                      key: ObjectKey(photo.original),
+                      onTap: () =>
+                          Navigator.of(context).push(GalleryScreen.route()),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(Spacing.s),
+                        child: Image.memory(
+                          photo.filtered ?? photo.original,
+                          fit: BoxFit.cover,
+                          cacheWidth: _thumbnailDecodeWidth,
+                          gaplessPlayback: true,
+                        ),
                       ),
                     ),
-                  ),
+            ),
           ),
           _ShutterButton(onPressed: cameraReady ? onShutter : null),
           RoundIconButton(

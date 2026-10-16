@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
+import '../../../../core/widgets/fade_in_memory_image.dart';
 import '../../../editor/data/photo_edit_request.dart';
 import '../../../editor/presentation/screens/photo_editor_screen.dart';
 import '../../../film/data/builtin_presets.dart';
@@ -40,7 +41,7 @@ class GalleryPhotoPage extends ConsumerWidget {
           source: hasOriginal ? original : bytes,
           originalKey: hasOriginal ? record.originalKey : null,
           // Sin original, la foto ya tiene el look: se edita desde neutro.
-          look: hasOriginal ? record.look : kNeutralPreset,
+          look: hasOriginal ? record.look : kOriginalPreset,
           dateStamp: hasOriginal ? record.dateStamp : null,
           takenAt: photo.asset.createDateTime,
           photo: photo,
@@ -94,7 +95,7 @@ class GalleryPhotoPage extends ConsumerWidget {
                     filtered: bytes,
                     decodeWidth: decodeWidth,
                   )
-                : Image.memory(bytes, cacheWidth: decodeWidth),
+                : FadeInMemoryImage(bytes, cacheWidth: decodeWidth),
           ),
           const SizedBox(height: Spacing.m),
           Row(

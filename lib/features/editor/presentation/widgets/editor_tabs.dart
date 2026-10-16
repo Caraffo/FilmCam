@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/spacing.dart';
 
 enum EditorTab {
@@ -38,15 +39,16 @@ class EditorTabs extends StatelessWidget {
                 horizontal: Spacing.m,
                 vertical: Spacing.s,
               ),
-              child: Text(
-                tab.label.toUpperCase(),
-                style: textTheme.labelMedium?.copyWith(
+              child: AnimatedDefaultTextStyle(
+                duration: Motion.fast,
+                style: textTheme.labelMedium!.copyWith(
                   letterSpacing: 1.5,
                   fontWeight: FontWeight.w600,
                   color: tab == selected
                       ? scheme.primary
                       : scheme.onSurfaceVariant,
                 ),
+                child: Text(tab.label.toUpperCase()),
               ),
             ),
           ),

@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
-import '../../../gallery/presentation/screens/gallery_screen.dart';
+import '../../../gallery/presentation/screens/photo_viewer_screen.dart';
+import '../../../film/presentation/film_providers.dart';
 import '../camera_layout.dart';
 import '../camera_session.dart';
 import '../capture_providers.dart';
@@ -36,6 +37,10 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     ref.read(shutterSoundPlayerProvider).preload();
+    preloadFilmAssets(ref).catchError(
+      (Object error) =>
+          debugPrint('No se pudieron precargar los filtros: $error'),
+    );
   }
 
   @override
@@ -80,7 +85,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     }
     if (!mounted) return;
     await _curtain.forward();
-    if (mounted) await Navigator.of(context).push(GalleryScreen.route());
+    if (mounted) await Navigator.of(context).push(PhotoViewerScreen.route());
   }
 
   @override

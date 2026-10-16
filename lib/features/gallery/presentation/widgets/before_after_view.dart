@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/spacing.dart';
+import '../../../../core/widgets/fade_in_memory_image.dart';
 
 const double _handleSize = 36;
 const double _dividerWidth = 2;
@@ -35,11 +36,10 @@ class _BeforeAfterViewState extends State<BeforeAfterView> {
   double _split = _initialSplit;
   bool _showingOriginal = false;
 
-  Widget _image(Uint8List bytes) => Image.memory(
+  Widget _image(Uint8List bytes) => FadeInMemoryImage(
     bytes,
     fit: BoxFit.contain,
     cacheWidth: widget.decodeWidth,
-    gaplessPlayback: true,
   );
 
   @override

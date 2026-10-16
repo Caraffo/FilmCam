@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/fade_in_memory_image.dart';
+
 import '../../../camera/data/captured_photo.dart';
 import 'status_pill.dart';
 
@@ -21,7 +23,7 @@ class PendingCapturePage extends StatelessWidget {
       children: [
         Center(
           child: filtered != null
-              ? Image.memory(filtered, cacheWidth: decodeWidth)
+              ? FadeInMemoryImage(filtered, cacheWidth: decodeWidth)
               : AspectRatio(
                   aspectRatio: photo.aspect.ratio,
                   child: ClipRect(

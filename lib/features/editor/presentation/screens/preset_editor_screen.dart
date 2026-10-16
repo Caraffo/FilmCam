@@ -64,8 +64,10 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
     await _run(() => ref.read(presetsProvider.notifier).save(preset), preset);
   }
 
-  Future<void> _delete() =>
-      _run(() => ref.read(presetsProvider.notifier).delete(_draft.id), null);
+  Future<void> _delete() => _run(
+    () => ref.read(presetsProvider.notifier).delete(widget.initial),
+    null,
+  );
 
   /// Ejecuta la acción, actualiza el look activo y cierra el editor.
   Future<void> _run(Future<void> Function() action, FilmPreset? select) async {
@@ -78,12 +80,7 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
       ).showSnackBar(SnackBar(content: Text('No se pudo guardar: $error')));
       return;
     }
-    final activeLook = ref.read(activeLookProvider.notifier);
-    if (select != null) {
-      activeLook.select(select);
-    } else if (ref.read(activeLookProvider).id == _draft.id) {
-      activeLook.select(ref.read(presetsProvider).requireValue.first);
-    }
+    if (select != null) ref.read(activeLookProvider.notifier).select(select);
     if (mounted) Navigator.of(context).pop();
   }
 

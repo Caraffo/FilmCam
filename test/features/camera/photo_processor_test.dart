@@ -43,7 +43,7 @@ Future<img.Image> _process(WidgetTester tester, FilmPreset look) async {
 
 void main() {
   testWidgets('el look neutro no altera la foto', (tester) async {
-    final output = await _process(tester, kNeutralPreset);
+    final output = await _process(tester, kOriginalPreset);
     final input = _gradient();
 
     expect(output.width, _width);

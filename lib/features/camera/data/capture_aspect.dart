@@ -9,6 +9,4 @@ enum CaptureAspect {
 
   final String label;
   final double ratio;
-
-  CaptureAspect get next => values[(index + 1) % values.length];
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
+import '../../../../core/widgets/motion_switcher.dart';
 import '../../../../core/widgets/round_icon_button.dart';
 import '../../../film/presentation/film_providers.dart';
 import '../camera_session.dart';
@@ -10,8 +11,6 @@ import 'preset_carousel.dart';
 import 'white_balance_pad.dart';
 
 enum CameraPanelMode { filters, exposure, whiteBalance }
-
-const Duration _switchDuration = Duration(milliseconds: 180);
 
 /// Zona inferior del visor: el carrusel de filtros o el ajuste abierto.
 class CameraPanel extends StatelessWidget {
@@ -21,8 +20,7 @@ class CameraPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: _switchDuration,
+    return MotionSwitcher(
       child: switch (mode) {
         CameraPanelMode.filters => const PresetCarousel(),
         CameraPanelMode.exposure => const _ExposureControls(),

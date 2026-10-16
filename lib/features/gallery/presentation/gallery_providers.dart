@@ -64,6 +64,13 @@ Future<Uint8List?> originalBytes(Ref ref, String originalKey) =>
 Future<Uint8List> galleryPhotoBytes(Ref ref, GalleryPhoto photo) =>
     ref.read(photoLibraryProvider).readBytes(photo.asset);
 
+/// Lado, en píxeles, de las miniaturas de la grilla.
+const int _thumbnailSize = 360;
+
+@riverpod
+Future<Uint8List> galleryThumbnail(Ref ref, GalleryPhoto photo) =>
+    ref.read(photoLibraryProvider).readThumbnail(photo.asset, _thumbnailSize);
+
 /// Fotos del álbum de FilmCam, de la más nueva a la más vieja.
 @riverpod
 class GalleryPhotos extends _$GalleryPhotos {

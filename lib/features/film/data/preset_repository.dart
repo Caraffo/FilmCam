@@ -5,27 +5,39 @@ import 'package:path_provider/path_provider.dart';
 
 import 'film_preset.dart';
 
-/// Guarda los presets creados por el usuario en un JSON local.
+/// Guarda en JSON locales los presets creados por el usuario y los de
+/// fábrica que borró (ocultos).
 class PresetRepository {
-  static const _fileName = 'user_presets.json';
+  static const _userPresetsFile = 'user_presets.json';
+  static const _hiddenPresetsFile = 'hidden_presets.json';
 
-  Future<File> _file() async {
+  Future<File> _file(String name) async {
     final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/$_fileName');
+    return File('${dir.path}/$name');
   }
 
-  Future<List<FilmPreset>> loadUserPresets() async {
-    final file = await _file();
+  Future<List<dynamic>> _readList(String name) async {
+    final file = await _file(name);
     if (!await file.exists()) return [];
-    final decoded = jsonDecode(await file.readAsString()) as List<dynamic>;
-    return decoded
-        .map((json) => FilmPreset.fromJson(json as Map<String, dynamic>))
-        .toList();
+    return jsonDecode(await file.readAsString()) as List<dynamic>;
   }
 
-  Future<void> saveUserPresets(List<FilmPreset> presets) async {
-    final file = await _file();
-    final json = presets.map((preset) => preset.toJson()).toList();
-    await file.writeAsString(jsonEncode(json));
-  }
+  Future<void> _writeList(String name, List<Object> values) async =>
+      (await _file(name)).writeAsString(jsonEncode(values));
+
+  Future<List<FilmPreset>> loadUserPresets() async => [
+    for (final json in await _readList(_userPresetsFile))
+      FilmPreset.fromJson(json as Map<String, dynamic>),
+  ];
+
+  Future<void> saveUserPresets(List<FilmPreset> presets) => _writeList(
+    _userPresetsFile,
+    [for (final preset in presets) preset.toJson()],
+  );
+
+  Future<Set<String>> loadHiddenBuiltInIds() async =>
+      (await _readList(_hiddenPresetsFile)).cast<String>().toSet();
+
+  Future<void> saveHiddenBuiltInIds(Set<String> ids) =>
+      _writeList(_hiddenPresetsFile, ids.toList());
 }

@@ -148,7 +148,7 @@ final class CaptureAspectSettingProvider
 }
 
 String _$captureAspectSettingHash() =>
-    r'1fc7f103ec9f039bcdc811bca91515c3004c4ea4';
+    r'f32d9ddfddca71464a0131f11dc7f17c67123b1b';
 
 abstract class _$CaptureAspectSetting extends $Notifier<CaptureAspect> {
   CaptureAspect build();

@@ -401,6 +401,80 @@ final class GalleryPhotoBytesFamily extends $Family
   String toString() => r'galleryPhotoBytesProvider';
 }
 
+@ProviderFor(galleryThumbnail)
+final galleryThumbnailProvider = GalleryThumbnailFamily._();
+
+final class GalleryThumbnailProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Uint8List>,
+          Uint8List,
+          FutureOr<Uint8List>
+        >
+    with $FutureModifier<Uint8List>, $FutureProvider<Uint8List> {
+  GalleryThumbnailProvider._({
+    required GalleryThumbnailFamily super.from,
+    required GalleryPhoto super.argument,
+  }) : super(
+         retry: null,
+         name: r'galleryThumbnailProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$galleryThumbnailHash();
+
+  @override
+  String toString() {
+    return r'galleryThumbnailProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Uint8List> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Uint8List> create(Ref ref) {
+    final argument = this.argument as GalleryPhoto;
+    return galleryThumbnail(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GalleryThumbnailProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$galleryThumbnailHash() => r'f3ae38768297471cbaa3859595aaacd027e86a2e';
+
+final class GalleryThumbnailFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Uint8List>, GalleryPhoto> {
+  GalleryThumbnailFamily._()
+    : super(
+        retry: null,
+        name: r'galleryThumbnailProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  GalleryThumbnailProvider call(GalleryPhoto photo) =>
+      GalleryThumbnailProvider._(argument: photo, from: this);
+
+  @override
+  String toString() => r'galleryThumbnailProvider';
+}
+
 /// Fotos del álbum de FilmCam, de la más nueva a la más vieja.
 
 @ProviderFor(GalleryPhotos)

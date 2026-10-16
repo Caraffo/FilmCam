@@ -7,6 +7,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 class _InMemoryPresetRepository implements PresetRepository {
   List<FilmPreset> stored = [];
+  Set<String> hidden = {};
+
+  @override
+  Future<Set<String>> loadHiddenBuiltInIds() async => hidden;
+
+  @override
+  Future<void> saveHiddenBuiltInIds(Set<String> ids) async => hidden = ids;
 
   @override
   Future<List<FilmPreset>> loadUserPresets() async => stored;
@@ -55,8 +62,33 @@ void main() {
       kBuiltInPresets.length + 1,
     );
 
-    await notifier.delete('user_1');
+    await notifier.delete(mine);
     expect(repository.stored, isEmpty);
+  });
+
+  test('borrar un preset de fábrica lo oculta y se puede restaurar', () async {
+    final notifier = container.read(presetsProvider.notifier);
+    await container.read(presetsProvider.future);
+    final active = container.read(activeLookProvider);
+
+    await notifier.delete(active);
+    expect(repository.hidden, {active.id});
+    expect(container.read(presetsProvider).value, isNot(contains(active)));
+    expect(container.read(activeLookProvider).id, kOriginalPresetId);
+    expect(notifier.hasHiddenBuiltIns, isTrue);
+
+    await notifier.restore(active);
+    expect(container.read(presetsProvider).value, contains(active));
+    expect(notifier.hasHiddenBuiltIns, isFalse);
+  });
+
+  test('"Original" es el primero y no se puede borrar', () async {
+    final notifier = container.read(presetsProvider.notifier);
+    final presets = await container.read(presetsProvider.future);
+    expect(presets.first, kOriginalPreset);
+
+    await notifier.delete(kOriginalPreset);
+    expect(container.read(presetsProvider).value!.first, kOriginalPreset);
   });
 
   test('el balance rápido se resetea al del preset elegido', () {

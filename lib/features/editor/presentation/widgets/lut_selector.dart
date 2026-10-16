@@ -5,9 +5,9 @@ import '../../../film/data/builtin_presets.dart';
 
 const _lutOptions = <String?, String>{
   null: 'Sin LUT',
-  LutAssets.classicFx: 'Clásica FX',
-  LutAssets.cine800t: 'Cine 800T',
-  LutAssets.mood: 'Mood',
+  LutAssets.classicFx: 'Clásico',
+  LutAssets.cine800t: 'Cine',
+  LutAssets.mood: 'Otoño',
 };
 
 class LutSelector extends StatelessWidget {

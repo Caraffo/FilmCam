@@ -33,7 +33,11 @@ class CroppedCameraPreview extends StatelessWidget {
             width: _referenceWidth,
             // El aspect ratio de la cámara viene en horizontal.
             height: _referenceWidth * controller.value.aspectRatio,
-            child: FilmFilter(look: look, child: CameraPreview(controller)),
+            child: FilmFilter(
+              look: look,
+              animateChanges: true,
+              child: CameraPreview(controller),
+            ),
           ),
         ),
       ),

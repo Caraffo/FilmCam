@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show WidgetRef;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/builtin_presets.dart';
@@ -27,39 +28,77 @@ Future<ui.Image> lutImage(Ref ref, String? asset) async {
 @Riverpod(keepAlive: true)
 PresetRepository presetRepository(Ref ref) => PresetRepository();
 
-/// Presets de fábrica seguidos de los creados por el usuario.
+/// Presets visibles: los de fábrica que no se borraron, seguidos de los
+/// creados por el usuario.
 @Riverpod(keepAlive: true)
 class Presets extends _$Presets {
+  List<FilmPreset> _userPresets = [];
+  Set<String> _hiddenIds = {};
+
+  /// Si hay presets de fábrica borrados que se pueden restaurar.
+  bool get hasHiddenBuiltIns => _hiddenIds.isNotEmpty;
+
   @override
   Future<List<FilmPreset>> build() async {
-    final userPresets = await ref
-        .read(presetRepositoryProvider)
-        .loadUserPresets();
-    return [...kBuiltInPresets, ...userPresets];
+    final repository = ref.read(presetRepositoryProvider);
+    _userPresets = await repository.loadUserPresets();
+    _hiddenIds = await repository.loadHiddenBuiltInIds();
+    return _visible();
   }
+
+  List<FilmPreset> _visible() => [
+    for (final preset in kBuiltInPresets)
+      if (!_hiddenIds.contains(preset.id)) preset,
+    ..._userPresets,
+  ];
 
   /// Crea o reemplaza un preset de usuario.
   Future<void> save(FilmPreset preset) async {
-    final userPresets = _userPresets();
-    final index = userPresets.indexWhere((p) => p.id == preset.id);
+    final index = _userPresets.indexWhere((p) => p.id == preset.id);
+    _userPresets = [..._userPresets];
     if (index == -1) {
-      userPresets.add(preset);
+      _userPresets.add(preset);
     } else {
-      userPresets[index] = preset;
+      _userPresets[index] = preset;
     }
-    await _persist(userPresets);
+    await ref.read(presetRepositoryProvider).saveUserPresets(_userPresets);
+    _publish();
   }
 
-  Future<void> delete(String id) =>
-      _persist(_userPresets()..removeWhere((p) => p.id == id));
-
-  List<FilmPreset> _userPresets() =>
-      (state.value ?? []).where((p) => !p.isBuiltIn).toList();
-
-  Future<void> _persist(List<FilmPreset> userPresets) async {
-    await ref.read(presetRepositoryProvider).saveUserPresets(userPresets);
-    state = AsyncData([...kBuiltInPresets, ...userPresets]);
+  /// Borra un preset del usuario u oculta uno de fábrica. "Original" no se
+  /// puede borrar.
+  Future<void> delete(FilmPreset preset) async {
+    if (preset.id == kOriginalPresetId) return;
+    final repository = ref.read(presetRepositoryProvider);
+    if (preset.isBuiltIn) {
+      _hiddenIds = {..._hiddenIds, preset.id};
+      await repository.saveHiddenBuiltInIds(_hiddenIds);
+    } else {
+      _userPresets = _userPresets.where((p) => p.id != preset.id).toList();
+      await repository.saveUserPresets(_userPresets);
+    }
+    _publish();
+    ref.read(activeLookProvider.notifier).onPresetDeleted(preset.id);
   }
+
+  /// Deshace el borrado de [preset].
+  Future<void> restore(FilmPreset preset) async {
+    if (preset.isBuiltIn) {
+      _hiddenIds = {..._hiddenIds}..remove(preset.id);
+      await ref.read(presetRepositoryProvider).saveHiddenBuiltInIds(_hiddenIds);
+      _publish();
+    } else {
+      await save(preset);
+    }
+  }
+
+  Future<void> restoreAllBuiltIns() async {
+    _hiddenIds = {};
+    await ref.read(presetRepositoryProvider).saveHiddenBuiltInIds(_hiddenIds);
+    _publish();
+  }
+
+  void _publish() => state = AsyncData(_visible());
 }
 
 /// Look activo en la cámara: el preset elegido más los ajustes rápidos
@@ -80,4 +119,19 @@ class ActiveLook extends _$ActiveLook {
 
   void resetWhiteBalance() =>
       setWhiteBalance(_selected.temperatureK, _selected.tint);
+
+  /// Si se borró el preset activo, la cámara vuelve a "Original".
+  void onPresetDeleted(String id) {
+    if (state.id == id) select(kOriginalPreset);
+  }
+}
+
+/// Carga de antemano el shader y los LUTs de fábrica para que cambiar de
+/// filtro no muestre un cuadro sin filtro mientras cargan.
+Future<void> preloadFilmAssets(WidgetRef ref) async {
+  await ref.read(filmProgramProvider.future);
+  final assets = {null, for (final p in kBuiltInPresets) p.lutAsset};
+  await Future.wait([
+    for (final asset in assets) ref.read(lutImageProvider(asset).future),
+  ]);
 }

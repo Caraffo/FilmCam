@@ -35,7 +35,7 @@ class CaptureAspectSetting extends _$CaptureAspectSetting {
   @override
   CaptureAspect build() => CaptureAspect.native;
 
-  void cycle() => state = state.next;
+  void select(CaptureAspect aspect) => state = aspect;
 }
 
 /// Última foto sacada. [takePhoto] vuelve apenas está el original; el

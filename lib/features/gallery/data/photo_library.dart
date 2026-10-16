@@ -43,6 +43,14 @@ class PhotoLibrary {
     return bytes;
   }
 
+  Future<Uint8List> readThumbnail(AssetEntity asset, int size) async {
+    final bytes = await asset.thumbnailDataWithSize(ThumbnailSize.square(size));
+    if (bytes == null) {
+      throw StateError('No se pudo leer la miniatura ${asset.id}.');
+    }
+    return bytes;
+  }
+
   /// Borra la foto. En Android el sistema pide confirmación: devuelve false
   /// si el usuario no la borró.
   Future<bool> delete(AssetEntity asset) async {

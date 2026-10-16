@@ -10,12 +10,23 @@ abstract final class LutAssets {
 
 const String kDefaultPresetId = 'gold_200';
 
-// Los looks "Análoga", "Vívida", "Mood", "Fría" y "Pastel" están inspirados
-// en estilos clásicos de VSCO (A6, C1, M5, HB1 y P5), recreados a mano.
+const String kOriginalPresetId = 'original';
+
+/// Look que no cambia nada. Es el primero del carrusel, no se puede borrar y
+/// sirve de base para editar fotos sin registro de revelado.
+const FilmPreset kOriginalPreset = FilmPreset(
+  id: kOriginalPresetId,
+  name: 'Original',
+  isBuiltIn: true,
+);
+
+// "Verano", "Brillo", "Otoño", "Bruma" y "Algodón" están inspirados en
+// estilos clásicos de VSCO (A6, C1, M5, HB1 y P5), recreados a mano.
 const List<FilmPreset> kBuiltInPresets = [
+  kOriginalPreset,
   FilmPreset(
     id: 'gold_200',
-    name: 'Oro 200',
+    name: 'Dorado',
     isBuiltIn: true,
     temperatureK: 8300,
     tint: -2,
@@ -31,7 +42,7 @@ const List<FilmPreset> kBuiltInPresets = [
   ),
   FilmPreset(
     id: 'analog',
-    name: 'Análoga',
+    name: 'Verano',
     isBuiltIn: true,
     temperatureK: 7600,
     tint: 4,
@@ -48,7 +59,7 @@ const List<FilmPreset> kBuiltInPresets = [
   ),
   FilmPreset(
     id: 'vivid',
-    name: 'Vívida',
+    name: 'Brillo',
     isBuiltIn: true,
     temperatureK: 6300,
     exposure: 0.1,
@@ -62,7 +73,7 @@ const List<FilmPreset> kBuiltInPresets = [
   ),
   FilmPreset(
     id: 'mood',
-    name: 'Mood',
+    name: 'Otoño',
     isBuiltIn: true,
     lutAsset: LutAssets.mood,
     temperatureK: 7000,
@@ -79,7 +90,7 @@ const List<FilmPreset> kBuiltInPresets = [
   ),
   FilmPreset(
     id: 'cold',
-    name: 'Fría',
+    name: 'Bruma',
     isBuiltIn: true,
     temperatureK: 5600,
     tint: -3,
@@ -95,7 +106,7 @@ const List<FilmPreset> kBuiltInPresets = [
   ),
   FilmPreset(
     id: 'pastel',
-    name: 'Pastel',
+    name: 'Algodón',
     isBuiltIn: true,
     temperatureK: 6900,
     tint: 8,
@@ -111,7 +122,7 @@ const List<FilmPreset> kBuiltInPresets = [
   ),
   FilmPreset(
     id: 'cine_800t',
-    name: 'Cine 800T',
+    name: 'Neón',
     isBuiltIn: true,
     lutAsset: LutAssets.cine800t,
     temperatureK: 5200,
@@ -126,7 +137,7 @@ const List<FilmPreset> kBuiltInPresets = [
   ),
   FilmPreset(
     id: 'silver_400',
-    name: 'Plata 400',
+    name: 'Grafito',
     isBuiltIn: true,
     contrast: 0.25,
     saturation: -1,
@@ -136,10 +147,3 @@ const List<FilmPreset> kBuiltInPresets = [
     vignette: 0.35,
   ),
 ];
-
-/// Look que no cambia nada; base para editar fotos sin registro de revelado.
-const FilmPreset kNeutralPreset = FilmPreset(
-  id: 'neutral',
-  name: 'Sin filtro',
-  isBuiltIn: true,
-);

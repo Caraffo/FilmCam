@@ -1,0 +1,100 @@
+import 'film_preset.dart';
+
+/// LUTs generados con `dart run tool/generate_luts.dart`.
+abstract final class LutAssets {
+  static const identity = 'assets/luts/identity.png';
+  static const classicFx = 'assets/luts/classic_fx.png';
+  static const cine800t = 'assets/luts/cine_800t.png';
+}
+
+const String kDefaultPresetId = 'classic_fx';
+
+const List<FilmPreset> kBuiltInPresets = [
+  FilmPreset(id: 'natural', name: 'Natural', isBuiltIn: true),
+  FilmPreset(
+    id: 'classic_fx',
+    name: 'Clásica FX',
+    isBuiltIn: true,
+    lutAsset: LutAssets.classicFx,
+    temperatureK: 7200,
+    contrast: 0.12,
+    saturation: -0.1,
+    fade: 0.15,
+    shadowTintColor: 0xFF3A7D80,
+    shadowTintStrength: 0.12,
+    grain: 0.06,
+    vignette: 0.25,
+  ),
+  FilmPreset(
+    id: 'portrait_160',
+    name: 'Retrato 160',
+    isBuiltIn: true,
+    temperatureK: 7400,
+    tint: 4,
+    contrast: -0.08,
+    saturation: -0.12,
+    fade: 0.2,
+    highlightTintColor: 0xFFF2C29B,
+    highlightTintStrength: 0.15,
+    grain: 0.05,
+    vignette: 0.15,
+  ),
+  FilmPreset(
+    id: 'gold_200',
+    name: 'Oro 200',
+    isBuiltIn: true,
+    temperatureK: 8300,
+    tint: -2,
+    exposure: -0.15,
+    contrast: 0.15,
+    saturation: 0.15,
+    fade: 0.1,
+    highlightTintColor: 0xFFF0B050,
+    highlightTintStrength: 0.2,
+    grain: 0.08,
+    vignette: 0.3,
+    halation: 0.25,
+  ),
+  FilmPreset(
+    id: 'cine_800t',
+    name: 'Cine 800T',
+    isBuiltIn: true,
+    lutAsset: LutAssets.cine800t,
+    temperatureK: 5200,
+    contrast: 0.1,
+    fade: 0.12,
+    shadowTintColor: 0xFF2C6E8C,
+    shadowTintStrength: 0.2,
+    grain: 0.1,
+    grainSize: 2,
+    vignette: 0.3,
+    halation: 0.7,
+  ),
+  FilmPreset(
+    id: 'silver_400',
+    name: 'Plata 400',
+    isBuiltIn: true,
+    contrast: 0.25,
+    saturation: -1,
+    fade: 0.08,
+    grain: 0.14,
+    grainSize: 2,
+    vignette: 0.35,
+  ),
+  FilmPreset(
+    id: 'instant',
+    name: 'Instantánea',
+    isBuiltIn: true,
+    temperatureK: 7000,
+    exposure: 0.15,
+    contrast: -0.15,
+    saturation: -0.2,
+    fade: 0.4,
+    shadowTintColor: 0xFF5E8F6A,
+    shadowTintStrength: 0.2,
+    highlightTintColor: 0xFFF5D9B0,
+    highlightTintStrength: 0.15,
+    grain: 0.05,
+    vignette: 0.4,
+  ),
+];

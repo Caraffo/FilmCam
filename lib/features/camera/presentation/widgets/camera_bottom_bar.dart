@@ -6,7 +6,7 @@ import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/round_icon_button.dart';
 import '../../../editor/presentation/screens/preset_editor_screen.dart';
 import '../../../film/presentation/film_providers.dart';
-import '../../../review/presentation/screens/review_screen.dart';
+import '../../../gallery/presentation/screens/gallery_screen.dart';
 import '../camera_layout.dart';
 import '../camera_session.dart';
 import '../capture_providers.dart';
@@ -32,10 +32,16 @@ class CameraBottomBar extends ConsumerWidget {
           SizedBox.square(
             dimension: CameraLayout.sideButtonSize,
             child: photo == null
-                ? null
+                ? RoundIconButton(
+                    tooltip: 'Galería',
+                    size: CameraLayout.sideButtonSize,
+                    icon: CupertinoIcons.photo_on_rectangle,
+                    onPressed: () =>
+                        Navigator.of(context).push(GalleryScreen.route()),
+                  )
                 : GestureDetector(
                     onTap: () =>
-                        Navigator.of(context).push(ReviewScreen.route()),
+                        Navigator.of(context).push(GalleryScreen.route()),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(Spacing.s),
                       child: Image.memory(

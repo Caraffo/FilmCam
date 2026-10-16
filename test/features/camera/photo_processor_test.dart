@@ -42,9 +42,8 @@ Future<img.Image> _process(WidgetTester tester, FilmPreset look) async {
 }
 
 void main() {
-  testWidgets('el preset Natural no altera la foto', (tester) async {
-    final natural = kBuiltInPresets.firstWhere((p) => p.id == 'natural');
-    final output = await _process(tester, natural);
+  testWidgets('el look neutro no altera la foto', (tester) async {
+    final output = await _process(tester, kNeutralPreset);
     final input = _gradient();
 
     expect(output.width, _width);

@@ -1,11 +1,11 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
-import '../../../film/presentation/film_filter.dart';
 import '../../../film/presentation/film_providers.dart';
 import '../camera_session.dart';
+import '../capture_providers.dart';
+import 'cropped_camera_preview.dart';
 
 /// Preview de la cámara con el look activo aplicado en vivo.
 class CameraViewport extends ConsumerWidget {
@@ -21,9 +21,10 @@ class CameraViewport extends ConsumerWidget {
         onRetry: () => ref.invalidate(cameraSessionProvider),
       ),
       data: (camera) => Center(
-        child: FilmFilter(
+        child: CroppedCameraPreview(
+          controller: camera.controller,
           look: ref.watch(activeLookProvider),
-          child: CameraPreview(camera.controller),
+          aspectRatio: ref.watch(captureAspectSettingProvider).ratio,
         ),
       ),
     );

@@ -9,94 +9,6 @@ part of 'capture_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(photoProcessor)
-final photoProcessorProvider = PhotoProcessorProvider._();
-
-final class PhotoProcessorProvider
-    extends $FunctionalProvider<PhotoProcessor, PhotoProcessor, PhotoProcessor>
-    with $Provider<PhotoProcessor> {
-  PhotoProcessorProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'photoProcessorProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$photoProcessorHash();
-
-  @$internal
-  @override
-  $ProviderElement<PhotoProcessor> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  PhotoProcessor create(Ref ref) {
-    return photoProcessor(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(PhotoProcessor value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<PhotoProcessor>(value),
-    );
-  }
-}
-
-String _$photoProcessorHash() => r'76d9e387372325731c360d493fc15e369a234803';
-
-@ProviderFor(galleryRepository)
-final galleryRepositoryProvider = GalleryRepositoryProvider._();
-
-final class GalleryRepositoryProvider
-    extends
-        $FunctionalProvider<
-          GalleryRepository,
-          GalleryRepository,
-          GalleryRepository
-        >
-    with $Provider<GalleryRepository> {
-  GalleryRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'galleryRepositoryProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$galleryRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<GalleryRepository> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  GalleryRepository create(Ref ref) {
-    return galleryRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(GalleryRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<GalleryRepository>(value),
-    );
-  }
-}
-
-String _$galleryRepositoryHash() => r'9bb907296177590a6bf78eef931f3a159fcf78dc';
-
 @ProviderFor(shutterSoundPlayer)
 final shutterSoundPlayerProvider = ShutterSoundPlayerProvider._();
 
@@ -203,17 +115,70 @@ abstract class _$DateStampEnabled extends $Notifier<bool> {
   }
 }
 
+@ProviderFor(CaptureAspectSetting)
+final captureAspectSettingProvider = CaptureAspectSettingProvider._();
+
+final class CaptureAspectSettingProvider
+    extends $NotifierProvider<CaptureAspectSetting, CaptureAspect> {
+  CaptureAspectSettingProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'captureAspectSettingProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$captureAspectSettingHash();
+
+  @$internal
+  @override
+  CaptureAspectSetting create() => CaptureAspectSetting();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CaptureAspect value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CaptureAspect>(value),
+    );
+  }
+}
+
+String _$captureAspectSettingHash() =>
+    r'1fc7f103ec9f039bcdc811bca91515c3004c4ea4';
+
+abstract class _$CaptureAspectSetting extends $Notifier<CaptureAspect> {
+  CaptureAspect build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<CaptureAspect, CaptureAspect>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<CaptureAspect, CaptureAspect>,
+              CaptureAspect,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// Última foto sacada. [takePhoto] vuelve apenas está el original; el
-/// procesado y el guardado de la versión con filtro siguen en segundo plano.
+/// recorte, el revelado y el guardado siguen en segundo plano.
 
 @ProviderFor(Capture)
 final captureProvider = CaptureProvider._();
 
 /// Última foto sacada. [takePhoto] vuelve apenas está el original; el
-/// procesado y el guardado de la versión con filtro siguen en segundo plano.
+/// recorte, el revelado y el guardado siguen en segundo plano.
 final class CaptureProvider extends $NotifierProvider<Capture, CapturedPhoto?> {
   /// Última foto sacada. [takePhoto] vuelve apenas está el original; el
-  /// procesado y el guardado de la versión con filtro siguen en segundo plano.
+  /// recorte, el revelado y el guardado siguen en segundo plano.
   CaptureProvider._()
     : super(
         from: null,
@@ -241,10 +206,10 @@ final class CaptureProvider extends $NotifierProvider<Capture, CapturedPhoto?> {
   }
 }
 
-String _$captureHash() => r'e313bc8f017143e5280da21e5c44744ba1a42152';
+String _$captureHash() => r'ca40e44dff5f0fd2d4ed7a882ed2b3fc1a25f0c2';
 
 /// Última foto sacada. [takePhoto] vuelve apenas está el original; el
-/// procesado y el guardado de la versión con filtro siguen en segundo plano.
+/// recorte, el revelado y el guardado siguen en segundo plano.
 
 abstract class _$Capture extends $Notifier<CapturedPhoto?> {
   CapturedPhoto? build();

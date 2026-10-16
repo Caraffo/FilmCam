@@ -4,20 +4,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../film/data/film_preset.dart';
 import '../../film/presentation/film_providers.dart';
+import '../../gallery/presentation/gallery_providers.dart';
 import '../../settings/presentation/settings_providers.dart';
+import '../data/capture_aspect.dart';
 import '../data/captured_photo.dart';
-import '../data/gallery_repository.dart';
-import '../data/photo_processor.dart';
+import '../data/photo_cropper.dart';
 import '../data/shutter_sound_player.dart';
 import 'camera_session.dart';
 
 part 'capture_providers.g.dart';
-
-@Riverpod(keepAlive: true)
-PhotoProcessor photoProcessor(Ref ref) => const PhotoProcessor();
-
-@Riverpod(keepAlive: true)
-GalleryRepository galleryRepository(Ref ref) => GalleryRepository();
 
 @Riverpod(keepAlive: true)
 ShutterSoundPlayer shutterSoundPlayer(Ref ref) {
@@ -35,8 +30,16 @@ class DateStampEnabled extends _$DateStampEnabled {
   void toggle() => state = !state;
 }
 
+@Riverpod(keepAlive: true)
+class CaptureAspectSetting extends _$CaptureAspectSetting {
+  @override
+  CaptureAspect build() => CaptureAspect.native;
+
+  void cycle() => state = state.next;
+}
+
 /// Última foto sacada. [takePhoto] vuelve apenas está el original; el
-/// procesado y el guardado de la versión con filtro siguen en segundo plano.
+/// recorte, el revelado y el guardado siguen en segundo plano.
 @Riverpod(keepAlive: true)
 class Capture extends _$Capture {
   bool _shooting = false;
@@ -45,7 +48,7 @@ class Capture extends _$Capture {
   CapturedPhoto? build() => null;
 
   /// Dispara la cámara. Los errores al sacar la foto se propagan; los del
-  /// procesado quedan en [CapturedPhoto.processingError].
+  /// revelado quedan en [CapturedPhoto.processingError].
   Future<void> takePhoto() async {
     if (_shooting) return;
     _shooting = true;
@@ -59,43 +62,47 @@ class Capture extends _$Capture {
           ? DateTime.now()
           : null;
       final file = await ref.read(cameraSessionProvider.notifier).takePicture();
-      final photo = CapturedPhoto(original: await file.readAsBytes());
+      final photo = CapturedPhoto(
+        original: await file.readAsBytes(),
+        aspect: ref.read(captureAspectSettingProvider),
+      );
       state = photo;
-      unawaited(_processAndSave(photo, look, dateStamp));
+      unawaited(_develop(photo, look, dateStamp));
     } finally {
       _shooting = false;
     }
   }
 
-  Future<void> _processAndSave(
+  Future<void> _develop(
     CapturedPhoto photo,
     FilmPreset look,
     DateTime? dateStamp,
   ) async {
     try {
-      final program = await ref.read(filmProgramProvider.future);
-      final lut = await ref.read(lutImageProvider(look.lutAsset).future);
-      final filtered = await ref
-          .read(photoProcessorProvider)
-          .process(
-            photo.original,
-            look: look,
-            program: program,
-            lut: lut,
-            dateStamp: dateStamp,
-          );
-      await ref.read(galleryRepositoryProvider).saveJpeg(filtered);
-      _updateIfCurrent(photo, (p) => p.copyWith(filtered: filtered));
+      final original = photo.aspect == CaptureAspect.native
+          ? photo.original
+          : await cropToAspect(photo.original, photo.aspect.ratio);
+      final originalKey = await ref
+          .read(photoRecordStoreProvider)
+          .storeOriginal(original);
+      final developed = await developPhoto(
+        ref,
+        original: original,
+        originalKey: originalKey,
+        look: look,
+        dateStamp: dateStamp,
+      );
+      _updateIfCurrent(
+        photo,
+        (p) => p.copyWith(
+          filtered: developed.jpeg,
+          galleryKey: developed.record.key,
+        ),
+      );
+      ref.invalidate(galleryPhotosProvider);
     } catch (error) {
       _updateIfCurrent(photo, (p) => p.copyWith(processingError: error));
     }
-  }
-
-  Future<void> saveOriginal() async {
-    final photo = state;
-    if (photo == null || photo.originalSaved) return;
-    await ref.read(galleryRepositoryProvider).saveJpeg(photo.original);
-    _updateIfCurrent(photo, (p) => p.copyWith(originalSaved: true));
   }
 
   /// Aplica el cambio solo si [photo] sigue siendo la última foto.

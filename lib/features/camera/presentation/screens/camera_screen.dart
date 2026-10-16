@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
-import '../../../review/presentation/screens/review_screen.dart';
+import '../../../gallery/presentation/screens/gallery_screen.dart';
 import '../camera_layout.dart';
 import '../camera_session.dart';
 import '../capture_providers.dart';
@@ -80,7 +80,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     }
     if (!mounted) return;
     await _curtain.forward();
-    if (mounted) await Navigator.of(context).push(ReviewScreen.route());
+    if (mounted) await Navigator.of(context).push(GalleryScreen.route());
   }
 
   @override

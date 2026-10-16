@@ -6,6 +6,7 @@ import '../../../../core/theme/spacing.dart';
 import '../../../editor/presentation/screens/preset_editor_screen.dart';
 import '../../../film/presentation/film_providers.dart';
 import '../camera_session.dart';
+import '../../../film/presentation/preset_tile_frame.dart';
 import 'preset_thumbnail.dart';
 
 /// Carrusel de filtros con miniaturas de la cámara en vivo. Tocar elige el

@@ -16,6 +16,7 @@ void main() {
   _writeLut('identity', (rgb) => rgb);
   _writeLut('classic_fx', _classicFx);
   _writeLut('cine_800t', _cine800t);
+  _writeLut('mood', _mood);
 }
 
 void _writeLut(String name, ColorTransform transform) {
@@ -72,6 +73,19 @@ List<double> _cine800t(List<double> rgb) {
   sat *= 1 + 0.2 * _hueWeight(hue, center: 30, width: 25);
   final value = _compressHighlights(hsv[2], 0.8);
   return _hsvToRgb([hue, sat.clamp(0.0, 1.0), value]);
+}
+
+/// Look apagado: verdes hacia el oliva y desaturados, azules más grises.
+List<double> _mood(List<double> rgb) {
+  final hsv = _rgbToHsv(rgb);
+  var hue = hsv[0];
+  var sat = hsv[1];
+  hue -= 35 * _hueWeight(hue, center: 120, width: 60);
+  sat *= 1 - 0.4 * _hueWeight(hue, center: 90, width: 50);
+  sat *= 1 - 0.3 * _hueWeight(hue, center: 215, width: 45);
+  sat *= 1 - 0.1 * _hueWeight(hue, center: 30, width: 30);
+  final value = _compressHighlights(hsv[2], 0.8);
+  return _hsvToRgb([hue, sat, value]);
 }
 
 /// Peso suave (0..1) según la distancia de un tono a [center], en grados.

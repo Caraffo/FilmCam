@@ -1,15 +1,12 @@
-import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/painting.dart';
-import 'package:image/image.dart' as img;
 
 import '../../film/data/film_preset.dart';
 import '../../film/rendering/film_shader_uniforms.dart';
-
-const int _jpegQuality = 92;
+import 'image_codec.dart';
 
 // Fecha estampada al estilo de las cámaras compactas de rollo.
 const Color _dateStampColor = Color(0xFFFF8A1E);
@@ -28,7 +25,7 @@ class PhotoProcessor {
     required ui.Image lut,
     DateTime? dateStamp,
   }) async {
-    final photo = await _decode(originalBytes);
+    final photo = await decodeImage(originalBytes);
     final size = ui.Size(photo.width.toDouble(), photo.height.toDouble());
     final shader = program.fragmentShader();
     try {
@@ -55,29 +52,15 @@ class PhotoProcessor {
         photo.width,
         photo.height,
       );
-      final rgba = await rendered.toByteData(
-        format: ui.ImageByteFormat.rawRgba,
-      );
-      rendered.dispose();
-      if (rgba == null) {
-        throw StateError('No se pudo leer la foto procesada.');
+      try {
+        return await encodeJpeg(rendered);
+      } finally {
+        rendered.dispose();
       }
-      // Solo datos enviables al isolate: ui.Image no lo es.
-      final pixels = rgba.buffer.asUint8List();
-      final width = photo.width;
-      final height = photo.height;
-      return Isolate.run(() => _encodeJpeg(pixels, width, height));
     } finally {
       shader.dispose();
       photo.dispose();
     }
-  }
-
-  Future<ui.Image> _decode(Uint8List bytes) async {
-    final codec = await ui.instantiateImageCodec(bytes);
-    final frame = await codec.getNextFrame();
-    codec.dispose();
-    return frame.image;
   }
 
   void _paintDateStamp(ui.Canvas canvas, ui.Size size, DateTime date) {
@@ -112,14 +95,4 @@ class PhotoProcessor {
   }
 
   static String _twoDigits(int value) => value.toString().padLeft(2, '0');
-}
-
-Uint8List _encodeJpeg(Uint8List rgba, int width, int height) {
-  final image = img.Image.fromBytes(
-    width: width,
-    height: height,
-    bytes: rgba.buffer,
-    numChannels: 4,
-  );
-  return img.encodeJpg(image, quality: _jpegQuality);
 }

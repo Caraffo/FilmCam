@@ -8,9 +8,7 @@ import '../../../camera/presentation/camera_session.dart';
 import '../../../film/data/film_preset.dart';
 import '../../../film/presentation/film_filter.dart';
 import '../../../film/presentation/film_providers.dart';
-import '../preset_params.dart';
-import '../widgets/lut_selector.dart';
-import '../widgets/param_slider.dart';
+import '../widgets/preset_params_list.dart';
 
 /// Proporción del preview dentro del editor (alto de pantalla).
 const _previewHeightFactor = 0.38;
@@ -123,9 +121,10 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
                   ),
           ),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: Spacing.m),
-              children: [
+            child: PresetParamsList(
+              look: _draft,
+              onChanged: (look) => setState(() => _draft = look),
+              header: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: Spacing.m),
                   child: TextField(
@@ -133,35 +132,6 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
                     decoration: const InputDecoration(labelText: 'Nombre'),
                   ),
                 ),
-                LutSelector(
-                  value: _draft.lutAsset,
-                  onChanged: (asset) =>
-                      setState(() => _draft = _draft.copyWith(lutAsset: asset)),
-                ),
-                for (final group in kPresetParamGroups) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      Spacing.m,
-                      Spacing.l,
-                      Spacing.m,
-                      Spacing.s,
-                    ),
-                    child: Text(
-                      group.title,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                  ),
-                  for (final param in group.params)
-                    ParamSlider(
-                      label: param.label,
-                      value: param.read(_draft),
-                      min: param.min,
-                      max: param.max,
-                      decimals: param.decimals,
-                      onChanged: (v) =>
-                          setState(() => _draft = param.write(_draft, v)),
-                    ),
-                ],
               ],
             ),
           ),

@@ -7,6 +7,7 @@ const _lutOptions = <String?, String>{
   null: 'Sin LUT',
   LutAssets.classicFx: 'Clásica FX',
   LutAssets.cine800t: 'Cine 800T',
+  LutAssets.mood: 'Mood',
 };
 
 class LutSelector extends StatelessWidget {

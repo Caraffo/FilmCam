@@ -164,7 +164,7 @@ final class CaptureProvider
   }
 }
 
-String _$captureHash() => r'a97902579e3f83e79c870f745e491795060ff66e';
+String _$captureHash() => r'43e88ccff7b68a9fba10c4c59ea355f703a468ae';
 
 /// Fotos sacadas en esta sesión que todavía hacen falta, de la más nueva a
 /// la más vieja: la última (para la miniatura) y las que se están revelando

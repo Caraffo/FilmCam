@@ -39,7 +39,7 @@ final class CameraSessionProvider
   CameraSession create() => CameraSession();
 }
 
-String _$cameraSessionHash() => r'e8bb4ea2ec54d3a1db0f30b14250d51d67ed1b4e';
+String _$cameraSessionHash() => r'e704f8ec7f1308a347d21389bef96fb846e26351';
 
 /// Cámara abierta y sus ajustes. Se cierra con [close] cuando la app pasa a
 /// segundo plano y se reabre invalidando el provider.

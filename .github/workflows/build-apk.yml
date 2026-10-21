@@ -1,0 +1,84 @@
+name: Build APK
+
+# Compila la APK en cada push a master que toque la app y la publica en el
+# release "apk-latest" junto con update.json, que la app consulta para
+# actualizarse sola.
+on:
+  push:
+    branches: [master]
+    paths:
+      - "lib/**"
+      - "android/**"
+      - "assets/**"
+      - "shaders/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/build-apk.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: build-apk
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.44.0"
+          cache: true
+
+      # Misma clave con la que está firmada la app instalada, así cada
+      # versión se instala encima sin perder datos.
+      - name: Signing key
+        run: |
+          mkdir -p ~/.android
+          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d > ~/.android/debug.keystore
+          test -s ~/.android/debug.keystore
+
+      - name: Build release APK
+        run: |
+          flutter pub get
+          flutter build apk --release \
+            --target-platform android-arm64 \
+            --build-number="${GITHUB_RUN_NUMBER}" \
+            --build-name="1.0.${GITHUB_RUN_NUMBER}"
+          cp build/app/outputs/flutter-apk/app-release.apk filmcam-latest.apk
+          cat > update.json <<JSON
+          {
+            "buildNumber": ${GITHUB_RUN_NUMBER},
+            "versionName": "1.0.${GITHUB_RUN_NUMBER}",
+            "commit": "${GITHUB_SHA}"
+          }
+          JSON
+          cat update.json
+
+      - name: Publish apk-latest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          notes="Build #${GITHUB_RUN_NUMBER} · ${GITHUB_SHA}. Instalá filmcam-latest.apk; después la app se actualiza sola."
+          if gh release view apk-latest >/dev/null 2>&1; then
+            gh release edit apk-latest --title "FilmCam (última)" --target "${GITHUB_SHA}" --latest --notes "${notes}"
+          else
+            gh release create apk-latest --title "FilmCam (última)" --target "${GITHUB_SHA}" --latest --notes "${notes}"
+          fi
+          gh release upload apk-latest filmcam-latest.apk update.json --clobber

@@ -7,6 +7,8 @@ import '../../../gallery/presentation/screens/photo_viewer_screen.dart';
 import '../../../film/presentation/film_providers.dart';
 import '../../../settings/data/app_setting.dart';
 import '../../../settings/presentation/settings_providers.dart';
+import '../../../update/presentation/update_banner.dart';
+import '../../../update/presentation/update_providers.dart';
 import '../camera_layout.dart';
 import '../camera_session.dart';
 import '../capture_providers.dart';
@@ -41,6 +43,8 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     ref.read(shutterSoundPlayerProvider).preload();
+    // Si no hay internet falla en silencio: se puede buscar a mano en Ajustes.
+    ref.read(appUpdateProvider.notifier).check();
     preloadFilmAssets(ref).catchError(
       (Object error) =>
           debugPrint('No se pudieron precargar los filtros: $error'),
@@ -120,6 +124,12 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                 children: [
                   const ViewfinderGestures(child: CameraViewport()),
                   ShutterCurtain(animation: _curtain),
+                  const Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: Center(child: UpdateBanner()),
+                  ),
                   const Positioned(
                     left: 0,
                     right: 0,

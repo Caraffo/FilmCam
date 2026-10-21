@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/spacing.dart';
+import '../../update/presentation/update_tile.dart';
 import '../data/app_setting.dart';
 import 'settings_providers.dart';
 
@@ -35,6 +36,7 @@ class _SettingsSheet extends StatelessWidget {
               title: 'Abrir la foto al sacarla',
               subtitle: 'Apagado, podés sacar varias seguidas',
             ),
+            UpdateTile(),
           ],
         ),
       ),

@@ -37,6 +37,9 @@ const int kHalationTaps = 8;
 const float kHalationRadius = 0.012;
 const vec3 kHalationColor = vec3(1.0, 0.35, 0.15);
 const float kMaxFadeLift = 0.3;
+// El ruido triangular va de -1 a 1: se escala para que los valores de grano
+// de los filtros den la misma intensidad que antes.
+const float kGrainAmplitude = 0.5;
 
 vec2 inputUv() {
   vec2 uv = FlutterFragCoord().xy / uSize;
@@ -84,15 +87,11 @@ float hash(vec2 p) {
   return fract(p.x * p.y);
 }
 
-float valueNoise(vec2 p) {
-  vec2 cell = floor(p);
-  vec2 f = fract(p);
-  f = f * f * (3.0 - 2.0 * f);
-  float a = hash(cell);
-  float b = hash(cell + vec2(1.0, 0.0));
-  float c = hash(cell + vec2(0.0, 1.0));
-  float d = hash(cell + vec2(1.0, 1.0));
-  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+// Ruido de grano parejo, como el de una película: un valor por celda (sin
+// suavizar, para que no forme manchas) con distribución triangular, que se
+// ve más natural que el ruido uniforme.
+float grainNoise(vec2 cell) {
+  return hash(cell) + hash(cell + vec2(17.13, 31.71)) - 1.0;
 }
 
 vec3 splitTone(vec3 color, float luma) {
@@ -129,10 +128,11 @@ void main() {
   color *= mix(1.0, smoothstep(0.85, 0.25, length(centered)), uVignette);
 
   if (uGrain > 0.0) {
-    vec2 grainCoord = FlutterFragCoord().xy / (uGrainSize * pixelScale());
-    float grain = valueNoise(grainCoord + uSeed) - 0.5;
-    float midtones = 1.0 - abs(luma * 2.0 - 1.0) * 0.5;
-    color += grain * uGrain * midtones;
+    vec2 cell = floor(FlutterFragCoord().xy / (uGrainSize * pixelScale()));
+    // Casi la misma intensidad en todos los tonos; apenas menos en los
+    // negros y blancos puros para que no se vean grises.
+    float tonalWeight = 1.0 - pow(abs(luma * 2.0 - 1.0), 4.0) * 0.4;
+    color += grainNoise(cell + uSeed) * uGrain * kGrainAmplitude * tonalWeight;
   }
 
   fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);

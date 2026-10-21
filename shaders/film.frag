@@ -33,7 +33,7 @@ const vec3 kLuma = vec3(0.2126, 0.7152, 0.0722);
 // Los efectos que dependen de píxeles se escalan respecto de esta dimensión
 // para que el preview y la foto final se vean iguales.
 const float kReferenceDimension = 1000.0;
-const int kHalationTaps = 12;
+const int kHalationTaps = 8;
 const float kHalationRadius = 0.012;
 const vec3 kHalationColor = vec3(1.0, 0.35, 0.15);
 const float kMaxFadeLift = 0.3;
@@ -108,10 +108,15 @@ void main() {
   vec3 color = texture(uInput, uv).rgb;
 
   color *= uWhiteBalance * exp2(uExposure);
-  color += halation(uv) * uHalation;
+  // Los efectos caros se saltean si el look no los usa.
+  if (uHalation > 0.0) {
+    color += halation(uv) * uHalation;
+  }
   color = clamp(color, 0.0, 1.0);
 
-  color = mix(color, applyLut(color), uLutIntensity);
+  if (uLutIntensity > 0.0) {
+    color = mix(color, applyLut(color), uLutIntensity);
+  }
   color = clamp((color - 0.5) * (1.0 + uContrast) + 0.5, 0.0, 1.0);
 
   float luma = dot(color, kLuma);
@@ -123,10 +128,12 @@ void main() {
   centered.x *= uSize.x / uSize.y;
   color *= mix(1.0, smoothstep(0.85, 0.25, length(centered)), uVignette);
 
-  vec2 grainCoord = FlutterFragCoord().xy / (uGrainSize * pixelScale());
-  float grain = valueNoise(grainCoord + uSeed) - 0.5;
-  float midtones = 1.0 - abs(luma * 2.0 - 1.0) * 0.5;
-  color += grain * uGrain * midtones;
+  if (uGrain > 0.0) {
+    vec2 grainCoord = FlutterFragCoord().xy / (uGrainSize * pixelScale());
+    float grain = valueNoise(grainCoord + uSeed) - 0.5;
+    float midtones = 1.0 - abs(luma * 2.0 - 1.0) * 0.5;
+    color += grain * uGrain * midtones;
+  }
 
   fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
 }

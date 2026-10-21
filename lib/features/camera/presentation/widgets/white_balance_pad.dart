@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/typography.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../film/data/film_preset.dart';
 
@@ -34,7 +35,7 @@ class WhiteBalancePad extends StatelessWidget {
       children: [
         Text(
           '${temperatureK.round()}K ${tint.round()}',
-          style: Theme.of(context).textTheme.labelLarge,
+          style: mono(Theme.of(context).textTheme.labelLarge),
         ),
         const SizedBox(height: Spacing.xs),
         SizedBox(

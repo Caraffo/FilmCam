@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mismo negro cálido que el ícono, para que al abrir no haya un destello blanco. -->
+    <color name="launch_background">#12100D</color>
+    <color name="ic_launcher_background">#12100D</color>
+</resources>

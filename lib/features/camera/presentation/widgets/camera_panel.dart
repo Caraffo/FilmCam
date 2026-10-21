@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/typography.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/motion_switcher.dart';
 import '../../../../core/widgets/round_icon_button.dart';
@@ -80,7 +81,7 @@ class _ExposureControls extends ConsumerWidget {
         children: [
           Text(
             '$sign${value.toStringAsFixed(1)}',
-            style: Theme.of(context).textTheme.titleMedium,
+            style: mono(Theme.of(context).textTheme.titleMedium),
           ),
           const SizedBox(height: Spacing.s),
           Row(

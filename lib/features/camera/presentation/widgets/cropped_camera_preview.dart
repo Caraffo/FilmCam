@@ -4,10 +4,6 @@ import 'package:flutter/material.dart';
 import '../../../film/data/film_preset.dart';
 import '../../../film/presentation/film_filter.dart';
 
-/// Ancho de referencia del preview antes de escalarlo al recorte; solo fija
-/// la proporción, el tamaño final lo da el padre.
-const double _referenceWidth = 1000;
-
 /// Preview de la cámara con el look aplicado, recortado al centro con la
 /// relación de aspecto [aspectRatio] (ancho / alto).
 class CroppedCameraPreview extends StatelessWidget {
@@ -27,18 +23,32 @@ class CroppedCameraPreview extends StatelessWidget {
     return AspectRatio(
       aspectRatio: aspectRatio,
       child: ClipRect(
-        child: FittedBox(
-          fit: BoxFit.cover,
-          child: SizedBox(
-            width: _referenceWidth,
+        // El preview se arma al ancho real del recorte: si se armara más
+        // grande y se achicara, el filtro trabajaría sobre muchos más píxeles.
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
             // El aspect ratio de la cámara viene en horizontal.
-            height: _referenceWidth * controller.value.aspectRatio,
-            child: FilmFilter(
-              look: look,
-              animateChanges: true,
-              child: CameraPreview(controller),
-            ),
-          ),
+            final height = width * controller.value.aspectRatio;
+            return OverflowBox(
+              maxWidth: width,
+              maxHeight: height < constraints.maxHeight
+                  ? constraints.maxHeight
+                  : height,
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: width,
+                  height: height,
+                  child: FilmFilter(
+                    look: look,
+                    animateChanges: true,
+                    child: CameraPreview(controller),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

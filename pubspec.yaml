@@ -60,6 +60,7 @@ dev_dependencies:
   riverpod_generator: ^4.0.9
   freezed: ^4.0.0-dev.3
   json_serializable: ^6.14.1
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -80,12 +81,19 @@ flutter:
     - assets/sounds/
 
   fonts:
-    - family: Inter
+    - family: Archivo
       fonts:
-        - asset: assets/fonts/inter/Inter-Regular.ttf
-        - asset: assets/fonts/inter/Inter-Medium.ttf
+        - asset: assets/fonts/archivo/Archivo-Regular.ttf
+        - asset: assets/fonts/archivo/Archivo-Medium.ttf
           weight: 500
-        - asset: assets/fonts/inter/Inter-SemiBold.ttf
+        - asset: assets/fonts/archivo/Archivo-SemiBold.ttf
+          weight: 600
+    - family: IBM Plex Mono
+      fonts:
+        - asset: assets/fonts/ibm_plex_mono/IBMPlexMono-Regular.ttf
+        - asset: assets/fonts/ibm_plex_mono/IBMPlexMono-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ibm_plex_mono/IBMPlexMono-SemiBold.ttf
           weight: 600
 
   # To add assets to your application, add an assets section, like this:
@@ -118,3 +126,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  image_path: assets/icon/icon.png
+  android: true
+  adaptive_icon_background: "#12100D"
+  adaptive_icon_foreground: assets/icon/icon_foreground.png
+  ios: true
+  remove_alpha_ios: true

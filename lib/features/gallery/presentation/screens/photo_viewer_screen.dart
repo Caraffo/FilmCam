@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/typography.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/fade_scale_route.dart';
 import '../../../camera/presentation/capture_providers.dart';
 import '../../data/gallery_item.dart';
 import '../../data/gallery_photo.dart';
 import '../gallery_providers.dart';
+import '../widgets/empty_gallery_message.dart';
 import '../widgets/gallery_access_message.dart';
 import '../widgets/gallery_photo_page.dart';
 import '../widgets/pending_capture_page.dart';
@@ -55,7 +57,7 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
       body = photosAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => GalleryAccessMessage(error: error),
-        data: (_) => const Center(child: Text('Todavía no hay fotos')),
+        data: (_) => const EmptyGalleryMessage(),
       );
     } else {
       body = PageView.builder(
@@ -97,7 +99,7 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                   if (total > 0)
                     Text(
                       '${(_page + 1).clamp(1, total)} de $total',
-                      style: Theme.of(context).textTheme.labelMedium,
+                      style: mono(Theme.of(context).textTheme.labelMedium),
                     ),
                   const SizedBox(width: Spacing.m),
                 ],

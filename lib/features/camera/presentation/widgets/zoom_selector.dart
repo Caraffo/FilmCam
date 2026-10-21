@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/typography.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/spacing.dart';
 import '../camera_session.dart';
@@ -8,7 +9,6 @@ import '../camera_session.dart';
 const double _pillSize = 36;
 const double _selectedPillSize = 42;
 const double _backgroundAlpha = 0.45;
-const Duration _animationDuration = Motion.medium;
 
 /// Selector de zoom flotante sobre el visor, al estilo de iOS.
 class ZoomSelector extends ConsumerWidget {
@@ -68,8 +68,8 @@ class _ZoomPill extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: _animationDuration,
-        curve: Motion.spring,
+        duration: Motion.medium,
+        curve: Motion.emphasized,
         width: size,
         height: size,
         alignment: Alignment.center,
@@ -80,8 +80,8 @@ class _ZoomPill extends StatelessWidget {
           ),
         ),
         child: AnimatedDefaultTextStyle(
-          duration: _animationDuration,
-          style: Theme.of(context).textTheme.labelSmall!.copyWith(
+          duration: Motion.medium,
+          style: mono(Theme.of(context).textTheme.labelSmall)!.copyWith(
             color: selected ? scheme.primary : scheme.onSurface,
             fontWeight: FontWeight.w600,
           ),

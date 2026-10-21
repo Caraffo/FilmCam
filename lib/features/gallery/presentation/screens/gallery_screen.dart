@@ -10,6 +10,7 @@ import '../../data/gallery_item.dart';
 import '../../data/gallery_photo.dart';
 import '../gallery_providers.dart';
 import '../widgets/delete_photos.dart';
+import '../widgets/empty_gallery_message.dart';
 import '../widgets/gallery_access_message.dart';
 import '../widgets/gallery_grid_tile.dart';
 import 'photo_viewer_screen.dart';
@@ -82,7 +83,7 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
       body = photosAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => GalleryAccessMessage(error: error),
-        data: (_) => const Center(child: Text('Todavía no hay fotos')),
+        data: (_) => const EmptyGalleryMessage(),
       );
     } else {
       body = GridView.builder(

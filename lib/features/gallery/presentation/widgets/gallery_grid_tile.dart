@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,12 +9,12 @@ import '../../data/gallery_item.dart';
 import '../gallery_providers.dart';
 
 /// Retraso entre la entrada de una miniatura y la siguiente.
-const Duration _staggerStep = Duration(milliseconds: 25);
+const Duration _staggerStep = Duration(milliseconds: 15);
 
 /// Solo las primeras entran escalonadas; las que aparecen al scrollear
 /// entran enseguida.
-const int _maxStaggered = 18;
-const double _entryScale = 0.92;
+const int _maxStaggered = 12;
+const double _entryScale = 0.97;
 const double _spinnerSize = 20;
 const double _spinnerStroke = 2;
 const double _selectedScale = 0.86;
@@ -114,7 +115,7 @@ class GalleryGridTile extends ConsumerWidget {
                 child: AnimatedScale(
                   scale: selecting ? 1 : 0,
                   duration: Motion.medium,
-                  curve: Motion.spring,
+                  curve: Motion.emphasized,
                   child: _SelectionCheck(selected: selected),
                 ),
               ),
@@ -145,7 +146,11 @@ class _SelectionCheck extends StatelessWidget {
         border: Border.all(color: scheme.onSurface, width: _checkBorderWidth),
       ),
       child: selected
-          ? Icon(Icons.check, size: Spacing.m, color: scheme.onPrimary)
+          ? Icon(
+              CupertinoIcons.checkmark,
+              size: Spacing.m,
+              color: scheme.onPrimary,
+            )
           : null,
     );
   }

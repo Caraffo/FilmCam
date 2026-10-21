@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/theme/typography.dart';
 import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../data/capture_aspect.dart';
@@ -90,7 +91,7 @@ class _AspectOption extends StatelessWidget {
         child: Center(
           child: AnimatedDefaultTextStyle(
             duration: Motion.fast,
-            style: Theme.of(context).textTheme.labelMedium!.copyWith(
+            style: mono(Theme.of(context).textTheme.labelMedium)!.copyWith(
               fontWeight: FontWeight.w600,
               color: highlighted ? scheme.primary : scheme.onSurface,
             ),

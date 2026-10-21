@@ -1,17 +1,16 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
+import '../../../camera/data/capture_aspect.dart';
 import '../../../camera/presentation/camera_session.dart';
+import '../../../camera/presentation/widgets/cropped_camera_preview.dart';
 import '../../../film/data/film_preset.dart';
-import '../../../film/presentation/film_filter.dart';
 import '../../../film/presentation/film_providers.dart';
-import '../widgets/preset_params_list.dart';
+import '../widgets/adjustment_panel.dart';
 
-/// Proporción del preview dentro del editor (alto de pantalla).
-const _previewHeightFactor = 0.38;
+const double _panelHeight = 250;
 
 /// Edita un preset con preview en vivo. Los presets de fábrica, o los
 /// abiertos con [createNew], se guardan como uno nuevo; los del usuario se
@@ -97,39 +96,41 @@ class _PresetEditorScreenState extends ConsumerState<PresetEditorScreen> {
               onPressed: _delete,
               icon: const Icon(CupertinoIcons.trash),
             ),
-          IconButton(
-            tooltip: 'Guardar',
-            onPressed: _save,
-            icon: const Icon(CupertinoIcons.checkmark_alt),
-          ),
+          TextButton(onPressed: _save, child: const Text('Guardar')),
         ],
       ),
       body: Column(
         children: [
-          SizedBox(
-            height: MediaQuery.sizeOf(context).height * _previewHeightFactor,
+          Expanded(
             child: controller == null
                 ? const Center(child: CircularProgressIndicator())
                 : Center(
-                    child: FilmFilter(
+                    child: CroppedCameraPreview(
+                      controller: controller,
                       look: _draft,
-                      child: CameraPreview(controller),
+                      aspectRatio: CaptureAspect.native.ratio,
                     ),
                   ),
           ),
-          Expanded(
-            child: PresetParamsList(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              Spacing.l,
+              Spacing.s,
+              Spacing.l,
+              0,
+            ),
+            child: TextField(
+              controller: _nameController,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(labelText: 'Nombre del filtro'),
+            ),
+          ),
+          SizedBox(
+            height: _panelHeight,
+            child: AdjustmentPanel(
               look: _draft,
+              base: widget.initial,
               onChanged: (look) => setState(() => _draft = look),
-              header: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Spacing.m),
-                  child: TextField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Nombre'),
-                  ),
-                ),
-              ],
             ),
           ),
         ],

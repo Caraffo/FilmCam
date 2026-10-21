@@ -5,7 +5,7 @@ import '../theme/motion.dart';
 const double _defaultSize = 40;
 const double _iconSize = 20;
 const double _backgroundAlpha = 0.55;
-const double _pressedScale = 0.88;
+const double _pressedScale = 0.92;
 
 /// Botón circular translúcido, como los controles de la cámara de iOS.
 /// Cuando está activo, el ícono toma el color de acento; al cambiar de ícono
@@ -55,7 +55,7 @@ class _RoundIconButtonState extends State<RoundIconButton> {
       child: AnimatedScale(
         scale: _pressed ? _pressedScale : 1,
         duration: Motion.fast,
-        curve: Motion.spring,
+        curve: Motion.emphasized,
         child: Container(
           width: widget.size,
           height: widget.size,
@@ -67,7 +67,7 @@ class _RoundIconButtonState extends State<RoundIconButton> {
           ),
           child: AnimatedSwitcher(
             duration: Motion.medium,
-            switchInCurve: Motion.spring,
+            switchInCurve: Motion.emphasized,
             transitionBuilder: (child, animation) => ScaleTransition(
               scale: animation,
               child: FadeTransition(opacity: animation, child: child),

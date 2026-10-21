@@ -1,22 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/motion.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/motion_switcher.dart';
 import '../../../film/data/film_preset.dart';
+import '../../../film/presentation/date_stamp_overlay.dart';
 import '../../../film/presentation/film_filter.dart';
 import '../../../gallery/presentation/gallery_providers.dart';
 import '../../../gallery/presentation/widgets/status_pill.dart';
 import '../../data/photo_edit_request.dart';
 import '../widgets/editor_tabs.dart';
 import '../widgets/photo_filter_strip.dart';
-import '../widgets/preset_params_list.dart';
+import '../widgets/adjustment_panel.dart';
 import '../widgets/save_options_sheet.dart';
 
 const double _filtersPanelHeight = 112;
-const double _adjustPanelHeight = 300;
+const double _adjustPanelHeight = 250;
 const double _barrierAlpha = 0.5;
 
 /// Edita una foto ya sacada: arranca con su look y permite cambiar de
@@ -35,6 +37,9 @@ class PhotoEditorScreen extends ConsumerStatefulWidget {
 
 class _PhotoEditorScreenState extends ConsumerState<PhotoEditorScreen> {
   late FilmPreset _look = widget.request.look;
+
+  /// Filtro elegido; los ajustes se marcan y restablecen respecto de él.
+  late FilmPreset _base = widget.request.look;
   late bool _dateStamp = widget.request.dateStamp != null;
   EditorTab _tab = EditorTab.filters;
   bool _showingOriginal = false;
@@ -110,17 +115,29 @@ class _PhotoEditorScreenState extends ConsumerState<PhotoEditorScreen> {
                   onLongPressEnd: (_) =>
                       setState(() => _showingOriginal = false),
                   child: Center(
-                    child: _showingOriginal
-                        ? preview
-                        : FilmFilter(
+                    child: Stack(
+                      children: [
+                        if (_showingOriginal)
+                          preview
+                        else
+                          FilmFilter(
                             look: _look,
                             animateChanges: true,
                             child: preview,
                           ),
+                        if (_dateStamp && !_showingOriginal)
+                          Positioned.fill(
+                            child: DateStampOverlay(date: _stampDate),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              if (!widget.request.hasOriginal) const _NoOriginalNotice(),
+              if (!widget.request.hasOriginal)
+                const _NoOriginalNotice()
+              else
+                const _CompareHint(),
               const SizedBox(height: Spacing.s),
               EditorTabs(
                 selected: _tab,
@@ -141,15 +158,20 @@ class _PhotoEditorScreenState extends ConsumerState<PhotoEditorScreen> {
                       originalLabel: widget.request.hasOriginal
                           ? null
                           : 'Sin cambios',
-                      onSelected: (preset) => setState(() => _look = preset),
+                      onSelected: (preset) => setState(() {
+                        HapticFeedback.selectionClick();
+                        _look = _base = preset;
+                      }),
                     ),
-                    EditorTab.adjust => PresetParamsList(
+                    EditorTab.adjust => AdjustmentPanel(
                       key: const ValueKey(EditorTab.adjust),
                       look: _look,
+                      base: _base,
                       onChanged: (look) => setState(() => _look = look),
-                      header: [
-                        SwitchListTile(
-                          title: const Text('Fecha en la foto'),
+                      toggles: [
+                        ToggleTool(
+                          label: 'Fecha',
+                          icon: CupertinoIcons.calendar,
                           value: _dateStamp,
                           onChanged: (v) => setState(() => _dateStamp = v),
                         ),
@@ -198,6 +220,24 @@ class _NoOriginalNotice extends StatelessWidget {
         'Esta foto es de antes de que FilmCam guardara los originales: '
         'se edita sobre la versión con filtro y no se puede quitar.',
         textAlign: TextAlign.center,
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+      ),
+    );
+  }
+}
+
+class _CompareHint extends StatelessWidget {
+  const _CompareHint();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: Spacing.s),
+      child: Text(
+        'Mantené apretada la foto para ver el original',
         style: Theme.of(
           context,
         ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),

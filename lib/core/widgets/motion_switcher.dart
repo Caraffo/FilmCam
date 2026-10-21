@@ -8,20 +8,20 @@ class MotionSwitcher extends StatelessWidget {
   const MotionSwitcher({
     super.key,
     required this.child,
-    this.offset = 0.15,
-    this.duration = Motion.medium,
+    this.offset = 0.1,
+    this.duration,
   });
 
   final Widget child;
 
   /// Desplazamiento inicial, en fracción del alto del hijo.
   final double offset;
-  final Duration duration;
+  final Duration? duration;
 
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: duration,
+      duration: duration ?? Motion.medium,
       switchInCurve: Motion.standard,
       switchOutCurve: Motion.standard,
       transitionBuilder: (child, animation) => FadeTransition(

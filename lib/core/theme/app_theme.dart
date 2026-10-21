@@ -1,17 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-// Paleta minimal estilo cámara de iPhone: negro, grises y un único acento.
-const Color _accent = Color(0xFFFFD60A);
+// Cámara de rollo de noche: negro, grises cálidos y un único acento ámbar
+// (el mismo del ícono).
+const Color _accent = Color(0xFFFFC53D);
 const Color _background = Color(0xFF000000);
-const Color _foreground = Color(0xFFFFFFFF);
-const Color _surfaceRaised = Color(0xFF1C1C1E);
-const Color _surfaceHighest = Color(0xFF2C2C2E);
-const Color _outline = Color(0xFF3A3A3C);
-const Color _secondaryText = Color(0xFF8E8E93);
+const Color _foreground = Color(0xFFF5F1EA);
+const Color _surfaceRaised = Color(0xFF1D1B18);
+const Color _surfaceHighest = Color(0xFF2B2824);
+const Color _outline = Color(0xFF3B3732);
+const Color _secondaryText = Color(0xFF9C958B);
 const Color _error = Color(0xFFFF453A);
 
-const String _fontFamily = 'Inter';
+const String _fontFamily = 'Archivo';
 const double _sliderTrackHeight = 2;
 const double _sliderThumbRadius = 8;
 

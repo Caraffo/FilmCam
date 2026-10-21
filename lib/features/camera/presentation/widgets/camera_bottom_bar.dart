@@ -35,7 +35,7 @@ class CameraBottomBar extends ConsumerWidget {
             // La miniatura nueva entra con un pequeño rebote.
             child: AnimatedSwitcher(
               duration: Motion.medium,
-              switchInCurve: Motion.spring,
+              switchInCurve: Motion.emphasized,
               transitionBuilder: (child, animation) =>
                   ScaleTransition(scale: animation, child: child),
               child: photo == null
@@ -89,7 +89,6 @@ class _ShutterButton extends StatefulWidget {
 class _ShutterButtonState extends State<_ShutterButton> {
   static const _pressedScale = 0.9;
   static const _disabledAlpha = 0.4;
-  static const _pressDuration = Duration(milliseconds: 90);
 
   bool _pressed = false;
 
@@ -119,7 +118,7 @@ class _ShutterButtonState extends State<_ShutterButton> {
         ),
         child: AnimatedScale(
           scale: _pressed ? _pressedScale : 1,
-          duration: _pressDuration,
+          duration: Motion.fast,
           child: DecoratedBox(
             decoration: BoxDecoration(
               shape: BoxShape.circle,

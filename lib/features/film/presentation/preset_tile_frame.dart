@@ -6,8 +6,8 @@ import '../../../core/theme/spacing.dart';
 const double kPresetTileSize = 56;
 const double _tileRadius = 12;
 const double _selectedBorderWidth = 2;
-const double _unselectedScale = 0.9;
-const double _pressedScale = 0.84;
+const double _unselectedScale = 0.94;
+const double _pressedScale = 0.9;
 
 /// Marco común de los tiles de filtros: imagen redondeada y nombre debajo.
 /// El elegido se agranda y se resalta; al apretarlo se hunde un poco.
@@ -62,7 +62,7 @@ class _PresetTileFrameState extends State<PresetTileFrame> {
             AnimatedScale(
               scale: scale,
               duration: Motion.fast,
-              curve: Motion.spring,
+              curve: Motion.emphasized,
               child: AnimatedContainer(
                 duration: Motion.fast,
                 curve: Motion.standard,

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class ShutterCurtain extends StatelessWidget {
   const ShutterCurtain({super.key, required this.animation});
 
-  static const Duration duration = Duration(milliseconds: 260);
+  static const Duration duration = Duration(milliseconds: 200);
 
   /// Fracción de la animación en la que la cortina queda cerrada del todo.
   static const double _closedAt = 0.35;

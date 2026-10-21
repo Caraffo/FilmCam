@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
-const Duration _duration = Duration(milliseconds: 220);
-const double _startScale = 0.94;
+import '../theme/motion.dart';
+
+const double _startScale = 0.97;
 
 /// Transición que aparece con un leve zoom, como al abrir una foto.
 Route<T> fadeScaleRoute<T>(WidgetBuilder builder) => PageRouteBuilder<T>(
-  transitionDuration: _duration,
-  reverseTransitionDuration: _duration,
+  transitionDuration: Motion.medium,
+  reverseTransitionDuration: Motion.medium,
   pageBuilder: (context, _, _) => builder(context),
   transitionsBuilder: (_, animation, _, child) {
-    final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+    final curved = CurvedAnimation(parent: animation, curve: Motion.emphasized);
     return FadeTransition(
       opacity: curved,
       child: ScaleTransition(

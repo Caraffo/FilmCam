@@ -46,12 +46,17 @@ jobs:
           cache: true
 
       # Misma clave con la que está firmada la app instalada, así cada
-      # versión se instala encima sin perder datos.
+      # versión se instala encima sin perder datos. Si la clave no es la
+      # esperada, el build falla en vez de publicar una APK que no instala.
       - name: Signing key
+        env:
+          EXPECTED_SHA256: "13:8A:C2:5E:D2:09:48:2A:1B:65:CD:9F:1E:17:98:72:B7:0C:A1:AC:07:34:E8:8B:E4:94:52:1B:80:70:B2:2B"
         run: |
-          mkdir -p ~/.android
-          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d > ~/.android/debug.keystore
-          test -s ~/.android/debug.keystore
+          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d > "${RUNNER_TEMP}/filmcam.keystore"
+          actual=$(keytool -list -v -keystore "${RUNNER_TEMP}/filmcam.keystore" -storepass android -alias androiddebugkey | grep "SHA256:" | awk '{print $2}')
+          echo "Clave: ${actual}"
+          test "${actual}" = "${EXPECTED_SHA256}"
+          echo "FILMCAM_KEYSTORE=${RUNNER_TEMP}/filmcam.keystore" >> "$GITHUB_ENV"
 
       - name: Build release APK
         run: |
@@ -61,6 +66,9 @@ jobs:
             --build-number="${GITHUB_RUN_NUMBER}" \
             --build-name="1.0.${GITHUB_RUN_NUMBER}"
           cp build/app/outputs/flutter-apk/app-release.apk filmcam-latest.apk
+          # La APK publicada tiene que estar firmada con la clave esperada.
+          "${ANDROID_HOME}/build-tools/$(ls "${ANDROID_HOME}/build-tools" | sort -V | tail -1)/apksigner" \
+            verify --print-certs filmcam-latest.apk | grep -i "SHA-256 digest: 138ac25ed209482a1b65cd9f1e179872b70ca1ac0734e88be494521b8070b22b"
           cat > update.json <<JSON
           {
             "buildNumber": ${GITHUB_RUN_NUMBER},

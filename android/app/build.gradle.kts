@@ -25,11 +25,23 @@ android {
         versionName = flutter.versionName
     }
 
+    // La app se firma con la clave de debug de la Mac de Franco, también en
+    // GitHub Actions (FILMCAM_KEYSTORE apunta a esa clave), para que cada
+    // versión se instale encima de la anterior.
+    signingConfigs {
+        create("filmcam") {
+            val keystore = System.getenv("FILMCAM_KEYSTORE")
+                ?: "${System.getProperty("user.home")}/.android/debug.keystore"
+            storeFile = file(keystore)
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("filmcam")
         }
     }
 }

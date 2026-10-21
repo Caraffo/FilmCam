@@ -20,21 +20,23 @@ ShutterSoundPlayer shutterSoundPlayer(Ref ref) {
   return player;
 }
 
-/// Si se estampa la fecha en las fotos.
-@Riverpod(keepAlive: true)
-class DateStampEnabled extends _$DateStampEnabled {
-  @override
-  bool build() => false;
-
-  void toggle() => state = !state;
-}
-
+/// Relación de aspecto de las fotos; se recuerda entre sesiones.
 @Riverpod(keepAlive: true)
 class CaptureAspectSetting extends _$CaptureAspectSetting {
   @override
-  CaptureAspect build() => CaptureAspect.native;
+  CaptureAspect build() {
+    final saved = ref
+        .read(settingsRepositoryProvider)
+        .getChoice(StoredChoice.captureAspect);
+    return CaptureAspect.values.asNameMap()[saved] ?? CaptureAspect.native;
+  }
 
-  void select(CaptureAspect aspect) => state = aspect;
+  Future<void> select(CaptureAspect aspect) async {
+    state = aspect;
+    await ref
+        .read(settingsRepositoryProvider)
+        .setChoice(StoredChoice.captureAspect, aspect.name);
+  }
 }
 
 /// Fotos sacadas en esta sesión que todavía hacen falta, de la más nueva a
@@ -51,18 +53,15 @@ class Capture extends _$Capture {
   @override
   List<CapturedPhoto> build() => const [];
 
-  /// Dispara la cámara. Los errores al sacar la foto se propagan; los del
-  /// revelado quedan en [CapturedPhoto.processingError].
-  Future<void> takePhoto() async {
-    if (_shooting) return;
+  /// Dispara la cámara y vuelve cuando la foto ya se tomó. Devuelve false
+  /// si había otra captura en curso. Los errores al sacar la foto se
+  /// propagan; los del revelado quedan en [CapturedPhoto.processingError].
+  Future<bool> takePhoto() async {
+    if (_shooting) return false;
     _shooting = true;
     try {
-      if (ref.read(settingProvider(AppSetting.shutterSound).notifier).current) {
-        // El sonido no debe frenar ni hacer fallar el disparo.
-        ref.read(shutterSoundPlayerProvider).play().ignore();
-      }
       final look = ref.read(activeLookProvider);
-      final dateStamp = ref.read(dateStampEnabledProvider)
+      final dateStamp = ref.read(settingProvider(AppSetting.dateStamp))
           ? DateTime.now()
           : null;
       final file = await ref.read(cameraSessionProvider.notifier).takePicture();
@@ -75,6 +74,7 @@ class Capture extends _$Capture {
       _developQueue = _developQueue.then(
         (_) => _develop(photo, look, dateStamp),
       );
+      return true;
     } finally {
       _shooting = false;
     }

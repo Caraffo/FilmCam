@@ -58,7 +58,7 @@ class _SettingTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = settingProvider(setting);
-    final value = ref.watch(provider).value ?? setting.defaultValue;
+    final value = ref.watch(provider);
     final subtitle = this.subtitle;
     return ListTile(
       leading: Icon(icon),

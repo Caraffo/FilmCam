@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/round_icon_button.dart';
+import '../../../settings/data/app_setting.dart';
+import '../../../settings/presentation/settings_providers.dart';
 import '../../../settings/presentation/settings_sheet.dart';
 import '../camera_session.dart';
 import '../capture_providers.dart';
@@ -16,7 +18,8 @@ class CameraTopBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final camera = ref.watch(cameraSessionProvider).value;
     final session = ref.read(cameraSessionProvider.notifier);
-    final dateStamp = ref.watch(dateStampEnabledProvider);
+    final dateStampSetting = settingProvider(AppSetting.dateStamp);
+    final dateStamp = ref.watch(dateStampSetting);
     final flash = camera?.flashMode ?? FlashMode.off;
 
     return Padding(
@@ -37,7 +40,7 @@ class CameraTopBar extends ConsumerWidget {
             tooltip: 'Fecha en la foto',
             icon: CupertinoIcons.calendar,
             active: dateStamp,
-            onPressed: ref.read(dateStampEnabledProvider.notifier).toggle,
+            onPressed: ref.read(dateStampSetting.notifier).toggle,
           ),
           const SizedBox(width: Spacing.s),
           RoundIconButton(

@@ -36,6 +36,7 @@ class ZoomSelector extends ConsumerWidget {
               _ZoomPill(
                 zoom: zoom,
                 selected: camera.selectedStop == zoom,
+                displayZoom: camera.displayZoom,
                 onTap: () => ref
                     .read(cameraSessionProvider.notifier)
                     .selectZoomStop(zoom),
@@ -51,19 +52,27 @@ class _ZoomPill extends StatelessWidget {
   const _ZoomPill({
     required this.zoom,
     required this.selected,
+    required this.displayZoom,
     required this.onTap,
   });
 
   final double zoom;
   final bool selected;
+
+  /// Zoom actual: la lente resaltada lo muestra (por ejemplo, 1.7×).
+  final double displayZoom;
   final VoidCallback onTap;
+
+  static String _format(double value) {
+    final rounded = (value * 10).round() / 10;
+    return rounded == rounded.roundToDouble()
+        ? rounded.toInt().toString()
+        : rounded.toStringAsFixed(1);
+  }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final number = zoom == zoom.roundToDouble()
-        ? zoom.toInt().toString()
-        : zoom.toStringAsFixed(1);
     final size = selected ? _selectedPillSize : _pillSize;
     return GestureDetector(
       onTap: onTap,
@@ -85,7 +94,7 @@ class _ZoomPill extends StatelessWidget {
             color: selected ? scheme.primary : scheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
-          child: Text(selected ? '$number×' : number),
+          child: Text(selected ? '${_format(displayZoom)}×' : _format(zoom)),
         ),
       ),
     );

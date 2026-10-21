@@ -269,7 +269,7 @@ final class ActiveLookProvider
   }
 }
 
-String _$activeLookHash() => r'2845f72c406a4743172f2f3c3137d38461ad9f32';
+String _$activeLookHash() => r'21afc511a817d12effb38b18a03489c05ee7a656';
 
 /// Look activo en la cámara: el preset elegido más los ajustes rápidos
 /// (por ejemplo, el balance de blancos) que se hagan encima.

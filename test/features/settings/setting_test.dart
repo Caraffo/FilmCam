@@ -1,53 +1,46 @@
+import 'package:filmcam/features/camera/data/capture_aspect.dart';
+import 'package:filmcam/features/camera/presentation/capture_providers.dart';
+import 'package:filmcam/features/film/data/builtin_presets.dart';
+import 'package:filmcam/features/film/presentation/film_providers.dart';
 import 'package:filmcam/features/settings/data/app_setting.dart';
-import 'package:filmcam/features/settings/data/settings_repository.dart';
 import 'package:filmcam/features/settings/presentation/settings_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _InMemorySettingsRepository implements SettingsRepository {
-  final stored = <AppSetting, bool>{};
-
-  @override
-  Future<bool> load(AppSetting setting) async =>
-      stored[setting] ?? setting.defaultValue;
-
-  @override
-  Future<void> save(AppSetting setting, bool value) async =>
-      stored[setting] = value;
-}
+import '../../helpers/in_memory_settings.dart';
 
 void main() {
-  late _InMemorySettingsRepository repository;
-  late ProviderContainer container;
+  late InMemorySettingsRepository repository;
 
-  setUp(() {
-    repository = _InMemorySettingsRepository();
-    container = ProviderContainer(
+  ProviderContainer newContainer() {
+    final container = ProviderContainer(
       overrides: [settingsRepositoryProvider.overrideWithValue(repository)],
     );
+    addTearDown(container.dispose);
+    return container;
+  }
+
+  setUp(() => repository = InMemorySettingsRepository());
+
+  test('arranca con los valores por defecto', () {
+    final container = newContainer();
+    expect(container.read(settingProvider(AppSetting.shutterSound)), isTrue);
+    expect(container.read(settingProvider(AppSetting.dateStamp)), isFalse);
+    expect(container.read(captureAspectSettingProvider), CaptureAspect.native);
   });
 
-  tearDown(() => container.dispose());
+  test('las preferencias se recuerdan en la sesión siguiente', () async {
+    final first = newContainer();
+    await first.read(settingProvider(AppSetting.dateStamp).notifier).toggle();
+    await first
+        .read(captureAspectSettingProvider.notifier)
+        .select(CaptureAspect.square);
+    final silver = kBuiltInPresets.firstWhere((p) => p.id == 'silver_400');
+    first.read(activeLookProvider.notifier).select(silver);
 
-  test('arranca con los valores por defecto', () async {
-    expect(
-      await container.read(settingProvider(AppSetting.shutterSound).future),
-      isTrue,
-    );
-    expect(
-      await container.read(
-        settingProvider(AppSetting.openPhotoAfterCapture).future,
-      ),
-      isFalse,
-    );
-  });
-
-  test('al cambiar una preferencia se guarda', () async {
-    final provider = settingProvider(AppSetting.shutterSound);
-    await container.read(provider.future);
-    await container.read(provider.notifier).set(false);
-
-    expect(container.read(provider).value, isFalse);
-    expect(repository.stored[AppSetting.shutterSound], isFalse);
+    final next = newContainer();
+    expect(next.read(settingProvider(AppSetting.dateStamp)), isTrue);
+    expect(next.read(captureAspectSettingProvider), CaptureAspect.square);
+    expect(next.read(activeLookProvider).id, 'silver_400');
   });
 }

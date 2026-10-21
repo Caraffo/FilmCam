@@ -74,6 +74,11 @@ Future<Uint8List> galleryThumbnail(Ref ref, GalleryPhoto photo) =>
 /// Fotos del álbum de FilmCam, de la más nueva a la más vieja.
 @riverpod
 class GalleryPhotos extends _$GalleryPhotos {
+  /// Fotos borradas en esta sesión. Android puede seguir listándolas un rato
+  /// después de borrarlas (por ejemplo, mientras sincroniza con la nube), así
+  /// que se ocultan acá para que no reaparezcan.
+  static final Set<String> _deletedIds = {};
+
   @override
   Future<List<GalleryPhoto>> build() async {
     final library = ref.read(photoLibraryProvider);
@@ -81,10 +86,11 @@ class GalleryPhotos extends _$GalleryPhotos {
     final assets = await library.listAlbum();
     return [
       for (final asset in assets)
-        GalleryPhoto(
-          asset: asset,
-          key: photoKeyFromTitle(asset.title ?? await asset.titleAsync),
-        ),
+        if (!_deletedIds.contains(asset.id))
+          GalleryPhoto(
+            asset: asset,
+            key: photoKeyFromTitle(asset.title ?? await asset.titleAsync),
+          ),
     ];
   }
 
@@ -138,6 +144,15 @@ class GalleryPhotos extends _$GalleryPhotos {
     final deletedIds = await ref.read(photoLibraryProvider).deleteAll([
       for (final photo in photos) photo.asset,
     ]);
+    _deletedIds.addAll(deletedIds);
+    // Se sacan de la lista al toque, sin esperar a que Android la actualice.
+    final current = state.value;
+    if (current != null) {
+      state = AsyncData([
+        for (final photo in current)
+          if (!deletedIds.contains(photo.asset.id)) photo,
+      ]);
+    }
     final store = ref.read(photoRecordStoreProvider);
     await store.deleteRecords([
       for (final photo in photos)

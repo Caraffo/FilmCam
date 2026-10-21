@@ -15,6 +15,7 @@ import '../widgets/camera_panel.dart';
 import '../widgets/camera_top_bar.dart';
 import '../widgets/camera_viewport.dart';
 import '../widgets/control_strip.dart';
+import '../widgets/viewfinder_gestures.dart';
 import '../widgets/shutter_curtain.dart';
 import '../widgets/zoom_selector.dart';
 
@@ -31,7 +32,8 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   CameraPanelMode _panel = CameraPanelMode.filters;
   late final AnimationController _curtain = AnimationController(
     vsync: this,
-    duration: ShutterCurtain.duration,
+    duration: ShutterCurtain.closeDuration,
+    reverseDuration: ShutterCurtain.openDuration,
   );
 
   @override
@@ -39,10 +41,6 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     ref.read(shutterSoundPlayerProvider).preload();
-    // Se cargan ya para que el primer disparo use lo que eligió el usuario.
-    for (final setting in AppSetting.values) {
-      ref.read(settingProvider(setting));
-    }
     preloadFilmAssets(ref).catchError(
       (Object error) =>
           debugPrint('No se pudieron precargar los filtros: $error'),
@@ -78,23 +76,35 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
       setState(() => _panel = _panel == mode ? CameraPanelMode.filters : mode);
 
   Future<void> _shoot() async {
-    HapticFeedback.mediumImpact();
-    _curtain.forward(from: 0);
+    // La cortina queda cerrada mientras la cámara captura.
+    _curtain.forward();
     try {
-      await ref.read(captureProvider.notifier).takePhoto();
+      final taken = await ref.read(captureProvider.notifier).takePhoto();
+      // Si ya había una captura en curso, esa se encarga de la cortina.
+      if (!taken) return;
+      // El sonido y la vibración marcan el momento en que la foto ya se tomó.
+      HapticFeedback.mediumImpact();
+      if (ref.read(settingProvider(AppSetting.shutterSound))) {
+        ref.read(shutterSoundPlayerProvider).play().ignore();
+      }
     } catch (error) {
+      _curtain.reverse();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('No se pudo sacar la foto: $error')),
       );
       return;
     }
-    final openPhoto = ref
-        .read(settingProvider(AppSetting.openPhotoAfterCapture).notifier)
-        .current;
-    if (!openPhoto || !mounted) return;
-    await _curtain.forward();
-    if (mounted) await Navigator.of(context).push(PhotoViewerScreen.route());
+    final openPhoto = ref.read(
+      settingProvider(AppSetting.openPhotoAfterCapture),
+    );
+    if (!mounted) return;
+    if (!openPhoto) {
+      _curtain.reverse();
+      return;
+    }
+    await Navigator.of(context).push(PhotoViewerScreen.route());
+    if (mounted) _curtain.reverse();
   }
 
   @override
@@ -108,7 +118,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  const CameraViewport(),
+                  const ViewfinderGestures(child: CameraViewport()),
                   ShutterCurtain(animation: _curtain),
                   const Positioned(
                     left: 0,

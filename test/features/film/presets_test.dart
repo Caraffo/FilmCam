@@ -3,7 +3,10 @@ import 'package:filmcam/features/film/data/film_preset.dart';
 import 'package:filmcam/features/film/data/preset_repository.dart';
 import 'package:filmcam/features/film/presentation/film_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:filmcam/features/settings/presentation/settings_providers.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/in_memory_settings.dart';
 
 class _InMemoryPresetRepository implements PresetRepository {
   List<FilmPreset> stored = [];
@@ -30,7 +33,12 @@ void main() {
   setUp(() {
     repository = _InMemoryPresetRepository();
     container = ProviderContainer(
-      overrides: [presetRepositoryProvider.overrideWithValue(repository)],
+      overrides: [
+        presetRepositoryProvider.overrideWithValue(repository),
+        settingsRepositoryProvider.overrideWithValue(
+          InMemorySettingsRepository(),
+        ),
+      ],
     );
   });
 

@@ -6,12 +6,20 @@ import 'core/diagnostics/frame_stats_logger.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/motion.dart';
 import 'features/camera/presentation/screens/camera_screen.dart';
+import 'features/settings/data/settings_repository.dart';
+import 'features/settings/presentation/settings_providers.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FrameStatsLogger.start();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(const ProviderScope(child: FilmCamApp()));
+  final settings = await SettingsRepository.load();
+  runApp(
+    ProviderScope(
+      overrides: [settingsRepositoryProvider.overrideWithValue(settings)],
+      child: const FilmCamApp(),
+    ),
+  );
 }
 
 class FilmCamApp extends StatelessWidget {

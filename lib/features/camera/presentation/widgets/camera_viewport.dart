@@ -7,6 +7,8 @@ import '../../../../core/theme/spacing.dart';
 import '../../../film/presentation/date_stamp_overlay.dart';
 import '../../../film/presentation/film_providers.dart';
 import '../../../gallery/presentation/gallery_providers.dart';
+import '../../../settings/data/app_setting.dart';
+import '../../../settings/presentation/settings_providers.dart';
 import '../camera_session.dart';
 import '../capture_providers.dart';
 import 'cropped_camera_preview.dart';
@@ -44,7 +46,7 @@ class CameraViewport extends ConsumerWidget {
                   aspectRatio: ratio,
                 ),
                 // Muestra dónde y cómo saldrá la fecha estampada.
-                if (ref.watch(dateStampEnabledProvider))
+                if (ref.watch(settingProvider(AppSetting.dateStamp)))
                   Positioned.fill(
                     child: DateStampOverlay(date: DateTime.now()),
                   ),

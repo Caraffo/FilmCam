@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show WidgetRef;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -7,6 +8,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../data/builtin_presets.dart';
 import '../data/film_preset.dart';
 import '../data/preset_repository.dart';
+import '../../settings/data/app_setting.dart';
+import '../../settings/presentation/settings_providers.dart';
 
 part 'film_providers.g.dart';
 
@@ -106,13 +109,36 @@ class Presets extends _$Presets {
 @Riverpod(keepAlive: true)
 class ActiveLook extends _$ActiveLook {
   @override
-  FilmPreset build() =>
-      _selected = kBuiltInPresets.firstWhere((p) => p.id == kDefaultPresetId);
+  FilmPreset build() {
+    final savedId = ref
+        .read(settingsRepositoryProvider)
+        .getChoice(StoredChoice.activePresetId);
+    final builtIn = kBuiltInPresets.where((p) => p.id == savedId).firstOrNull;
+    if (builtIn == null && savedId != null) _restoreUserPreset(savedId);
+    return _selected =
+        builtIn ?? kBuiltInPresets.firstWhere((p) => p.id == kDefaultPresetId);
+  }
+
+  /// Los filtros del usuario se cargan de un archivo: si el último elegido
+  /// era uno de ellos, se vuelve a elegir cuando terminan de cargar.
+  Future<void> _restoreUserPreset(String id) async {
+    final presets = await ref.read(presetsProvider.future);
+    final preset = presets.where((p) => p.id == id).firstOrNull;
+    if (preset != null && ref.mounted) select(preset);
+  }
 
   /// Preset elegido, sin los ajustes rápidos.
   late FilmPreset _selected;
 
-  void select(FilmPreset preset) => state = _selected = preset;
+  void select(FilmPreset preset) {
+    state = _selected = preset;
+    ref
+        .read(settingsRepositoryProvider)
+        .setChoice(StoredChoice.activePresetId, preset.id)
+        .catchError(
+          (Object error) => debugPrint('No se pudo guardar el filtro: $error'),
+        );
+  }
 
   void setWhiteBalance(double temperatureK, double tint) =>
       state = state.copyWith(temperatureK: temperatureK, tint: tint);
